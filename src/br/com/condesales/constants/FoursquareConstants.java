@@ -4,8 +4,8 @@ public class FoursquareConstants {
 	/**
 	 * Change this!!! Generate yours at https://foursquare.com/developers/register
 	 */
-	public static final String CLIENT_ID = "IWV5XIDWEMFK5UAYWNQQ0W5HXH1CYTAYLUJOUPY5DPLJHBAV";
-	public static final String CLIENT_SECRET = "5ZOX4SFXJVOCKPFZTQJ33X5HTEN3IR20CWEXD3LGPWGXE35Y";
+	public static final String CLIENT_ID = "QWAKGDMDTKSCNFFDQXWDWBSMLYGBVER3C0YZP0JZLPGR5F40";
+	public static final String CLIENT_SECRET = "EOUK1SBXNBWLAWADF0VJOUQO52XGIJS51TOGD1LCQWFIGQMX";
 	
 	public static final String CALLBACK_URL = "http://localhost:8888";
 	public static final String TOKEN_URL = "https://foursquare.com/oauth2/access_token?grant_type=authorization_code";
