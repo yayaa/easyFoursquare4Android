@@ -3,6 +3,8 @@ package br.com.condesales.tasks.users;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -26,6 +28,7 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
 	private Activity mActivity;
 	private ProgressDialog mProgress;
 	private UserInfoRequestListener mListener;
+	private Exception error;
 
 	public SelfInfoRequest(Activity activity, UserInfoRequestListener listener) {
 		mActivity = activity;
@@ -82,26 +85,9 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
 			user = gson.fromJson(retrieveUserInfo(), User.class);
 		}
 
-		// request the user photo
 		UserImageRequest request = new UserImageRequest(mActivity);
 		Bitmap bitmap = request.getFileInCache();
-		if (bitmap == null) {
-			request.execute(user.getPhoto());
-			try {
-				Bitmap bmp = request.get();
-				user.setBitmapPhoto(bmp);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				if (mListener != null)
-					mListener.onError(e.toString());
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-				if (mListener != null)
-					mListener.onError(e.toString());
-			}
-		} else {
-			user.setBitmapPhoto(bitmap);
-		}
+		user.setBitmapPhoto(bitmap);
 		return user;
 	}
 
@@ -109,6 +95,9 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
 	protected void onPostExecute(User result) {
 		mProgress.dismiss();
 		if (mListener != null)
+			if (error != null){
+				mListener.onError(error.toString());
+			}
 			mListener.onUserInfoFetched(result);
 		super.onPostExecute(result);
 	}

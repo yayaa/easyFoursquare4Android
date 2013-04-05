@@ -262,5 +262,8 @@ public class EasyFoursquare {
 		mDialog = new FoursquareDialog(mActivity, url, listener);
 		mDialog.show();
 	}
+	
+	
+	
 
 }

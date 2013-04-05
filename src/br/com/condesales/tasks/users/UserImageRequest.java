@@ -1,5 +1,6 @@
 package br.com.condesales.tasks.users;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,6 +22,7 @@ public class UserImageRequest extends AsyncTask<String, Integer, Bitmap> {
 	private ImageRequestListener mListener;
 	private Activity mActivity;
 	private final String FILE_NAME = "foursquareUser";
+	private Exception error;
 
 	public UserImageRequest(Activity activity, ImageRequestListener listener) {
 		mListener = listener;
@@ -36,6 +38,8 @@ public class UserImageRequest extends AsyncTask<String, Integer, Bitmap> {
 
 		String userPhoto = params[0];
 		Bitmap bmp = null;
+		InputStream is = null;
+		BufferedInputStream bis = null;
 		try {
 			URL url = new URL(userPhoto); // you can write here any link
 			/* Open a connection to that URL. */
@@ -43,13 +47,20 @@ public class UserImageRequest extends AsyncTask<String, Integer, Bitmap> {
 			/*
 			 * Define InputStreams to read from the URLConnection.
 			 */
-			InputStream is = ucon.getInputStream();
-
-			bmp = BitmapFactory.decodeStream(is);
+			is = ucon.getInputStream();
+			bis = new BufferedInputStream(is);
+			bmp = BitmapFactory.decodeStream(bis);
 		} catch (Exception e) {
 			Log.e("Getting user image", e.toString());
 			if (mListener != null)
-				mListener.onError(e.toString());
+				error = e;
+		} finally {
+			try {
+				is.close();
+				bis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return bmp;
 	}
@@ -58,7 +69,11 @@ public class UserImageRequest extends AsyncTask<String, Integer, Bitmap> {
 	protected void onPostExecute(Bitmap bmp) {
 		saveImageInCache(bmp);
 		if (mListener != null)
-			mListener.onImageFetched(bmp);
+			if (error != null) {
+				mListener.onError(error.toString());
+			} else {
+				mListener.onImageFetched(bmp);
+			}
 		super.onPostExecute(bmp);
 	}
 

@@ -17,7 +17,6 @@ public class VenuesCriteria {
 		public String getValue() {
 			return value;
 		}
-
 	}
 
 	private String mQuery;
