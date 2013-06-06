@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.CheckInCriteria;
+import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
 import br.com.condesales.criterias.VenuesCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
@@ -14,8 +15,10 @@ import br.com.condesales.listeners.FoursquareVenueDetailsResquestListener;
 import br.com.condesales.listeners.FoursquareVenuesResquestListener;
 import br.com.condesales.listeners.FriendsListener;
 import br.com.condesales.listeners.GetCheckInsListener;
+import br.com.condesales.listeners.TipsResquestListener;
 import br.com.condesales.listeners.UserInfoRequestListener;
 import br.com.condesales.listeners.VenuesHistoryListener;
+import br.com.condesales.tasks.TipsNearbyRequest;
 import br.com.condesales.tasks.checkins.CheckInRequest;
 import br.com.condesales.tasks.users.GetCheckInsRequest;
 import br.com.condesales.tasks.users.GetFriendsRequest;
@@ -77,6 +80,22 @@ public class EasyFoursquareAsync {
 	public void getVenuesNearby(FoursquareVenuesResquestListener listener,
 			VenuesCriteria criteria) {
 		FoursquareVenuesNearbyRequest request = new FoursquareVenuesNearbyRequest(
+				mActivity, listener, criteria);
+		request.execute(getAccessToken());
+	}
+	
+	/**
+	 * Requests the nearby Tips.
+	 * 
+	 * @param criteria
+	 *            The criteria to your search request
+	 * @param listener
+	 *            As the request is asynchronous, listener used to retrieve the
+	 *            User object, containing the information.
+	 */
+	public void getTipsNearby(TipsResquestListener listener,
+			TipsCriteria criteria) {
+		TipsNearbyRequest request = new TipsNearbyRequest(
 				mActivity, listener, criteria);
 		request.execute(getAccessToken());
 	}

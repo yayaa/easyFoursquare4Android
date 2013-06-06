@@ -7,13 +7,16 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.CheckInCriteria;
+import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
 import br.com.condesales.criterias.VenuesCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
 import br.com.condesales.models.Checkin;
+import br.com.condesales.models.Tip;
 import br.com.condesales.models.User;
 import br.com.condesales.models.Venue;
 import br.com.condesales.models.Venues;
+import br.com.condesales.tasks.TipsNearbyRequest;
 import br.com.condesales.tasks.checkins.CheckInRequest;
 import br.com.condesales.tasks.users.GetCheckInsRequest;
 import br.com.condesales.tasks.users.GetFriendsRequest;
@@ -54,9 +57,6 @@ public class EasyFoursquare {
 	/**
 	 * Requests logged user information asynchronously.
 	 * 
-	 * @param listener
-	 *            As the request is asynchronous, listener used to retrieve the
-	 *            User object, containing the information.
 	 * @return The user information
 	 */
 	public User getUserInfo() {
@@ -78,9 +78,6 @@ public class EasyFoursquare {
 	 * 
 	 * @param criteria
 	 *            The criteria to your search request
-	 * @param listener
-	 *            As the request is asynchronous, listener used to retrieve the
-	 *            User object, containing the information.
 	 */
 	public ArrayList<Venue> getVenuesNearby(VenuesCriteria criteria) {
 		FoursquareVenuesNearbyRequest request = new FoursquareVenuesNearbyRequest(
@@ -95,6 +92,27 @@ public class EasyFoursquare {
 			e.printStackTrace();
 		}
 		return venues;
+	}
+	
+	/**
+	 * Requests nearby Tip.
+	 * 
+	 * @param criteria
+	 *            The criteria to your search request
+	 */
+	public ArrayList<Tip> getTipsNearby(TipsCriteria criteria) {
+		TipsNearbyRequest request = new TipsNearbyRequest(
+				mActivity, criteria);
+		request.execute(getAccessToken());
+		ArrayList<Tip> tips = new ArrayList<Tip>();
+		try {
+			tips = request.get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		return tips;
 	}
 	
 	

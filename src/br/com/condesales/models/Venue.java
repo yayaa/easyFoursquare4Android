@@ -32,6 +32,10 @@ public class Venue {
 
 	private boolean dislake;
 
+	private String url;
+
+	private boolean like;
+
 	public String getTimeZone() {
 		return timeZone;
 	}
@@ -86,6 +90,22 @@ public class Venue {
 
 	public HereNow getBeenHere() {
 		return beenHere;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public boolean isLike() {
+		return like;
+	}
+
+	public void setLike(boolean like) {
+		this.like = like;
 	}
 
 }
