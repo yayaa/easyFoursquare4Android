@@ -16,7 +16,7 @@ import br.com.condesales.models.Tip;
 import br.com.condesales.models.User;
 import br.com.condesales.models.Venue;
 import br.com.condesales.models.Venues;
-import br.com.condesales.tasks.TipsNearbyRequest;
+import br.com.condesales.tasks.tips.TipsNearbyRequest;
 import br.com.condesales.tasks.checkins.CheckInRequest;
 import br.com.condesales.tasks.users.GetCheckInsRequest;
 import br.com.condesales.tasks.users.GetFriendsRequest;

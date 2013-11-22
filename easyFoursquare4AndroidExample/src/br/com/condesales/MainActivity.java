@@ -2,6 +2,7 @@ package br.com.condesales;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.ImageView;
@@ -9,10 +10,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import java.util.ArrayList;
+
+import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
 import br.com.condesales.listeners.ImageRequestListener;
+import br.com.condesales.listeners.TipsResquestListener;
 import br.com.condesales.listeners.UserInfoRequestListener;
+import br.com.condesales.models.Tip;
 import br.com.condesales.models.User;
+import br.com.condesales.tasks.tips.TipsNearbyRequest;
 import br.com.condesales.tasks.users.UserImageRequest;
 
 public class MainActivity extends Activity implements
@@ -80,9 +87,32 @@ public class MainActivity extends Activity implements
 						.show();
 			}
 		});
+        //requestTipsNearby(accessToken);
 	}
 
-	@Override
+    private void requestTipsNearby(String accessToken) {
+        Location loc = new Location("");
+        loc.setLatitude(40.4363483);
+        loc.setLongitude(-3.6815703);
+
+        TipsCriteria criteria = new TipsCriteria();
+        criteria.setLocation(loc);
+        TipsNearbyRequest request = new TipsNearbyRequest(this, new TipsResquestListener() {
+
+            @Override
+            public void onError(String errorMsg) {
+                Toast.makeText(MainActivity.this, "error", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onTipsFetched(ArrayList<Tip> tips) {
+                Toast.makeText(MainActivity.this, tips.toString(), Toast.LENGTH_LONG).show();
+            }
+        },criteria);
+        request.execute(accessToken);
+    }
+
+    @Override
 	public void onImageFetched(Bitmap bmp) {
 		userImage.setImageBitmap(bmp);
 	}

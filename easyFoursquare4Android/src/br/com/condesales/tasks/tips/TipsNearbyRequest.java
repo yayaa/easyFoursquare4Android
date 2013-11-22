@@ -1,4 +1,4 @@
-package br.com.condesales.tasks;
+package br.com.condesales.tasks.tips;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -15,28 +15,28 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import br.com.condesales.constants.FoursquareConstants;
-import br.com.condesales.criterias.VenuesCriteria;
-import br.com.condesales.listeners.FoursquareVenuesResquestListener;
-import br.com.condesales.models.Venue;
+import br.com.condesales.criterias.TipsCriteria;
+import br.com.condesales.listeners.TipsResquestListener;
+import br.com.condesales.models.Tip;
 
 import com.google.gson.Gson;
 
-public class FoursquareVenuesRequest extends
-		AsyncTask<String, Integer, ArrayList<Venue>> {
+public class TipsNearbyRequest extends
+		AsyncTask<String, Integer, ArrayList<Tip>> {
 
 	private Activity mActivity;
 	private ProgressDialog mProgress;
-	private FoursquareVenuesResquestListener mListener;
-	private VenuesCriteria mCriteria;
+	private TipsResquestListener mListener;
+	private TipsCriteria mCriteria;
 
-	public FoursquareVenuesRequest(Activity activity,
-			FoursquareVenuesResquestListener listener, VenuesCriteria criteria) {
+	public TipsNearbyRequest(Activity activity,
+			TipsResquestListener listener, TipsCriteria criteria) {
 		mActivity = activity;
 		mListener = listener;
 		mCriteria = criteria;
 	}
 
-	public FoursquareVenuesRequest(Activity activity, VenuesCriteria criteria) {
+	public TipsNearbyRequest(Activity activity, TipsCriteria criteria) {
 		mActivity = activity;
 		mCriteria = criteria;
 	}
@@ -45,57 +45,54 @@ public class FoursquareVenuesRequest extends
 	protected void onPreExecute() {
 		mProgress = new ProgressDialog(mActivity);
 		mProgress.setCancelable(false);
-		mProgress.setMessage("Getting venues nearby ...");
+		mProgress.setMessage("Getting tips nearby ...");
 		mProgress.show();
 		super.onPreExecute();
 	}
 
 	@Override
-	protected ArrayList<Venue> doInBackground(String... params) {
+	protected ArrayList<Tip> doInBackground(String... params) {
 
 		String access_token = params[0];
-		ArrayList<Venue> venues = new ArrayList<Venue>();
+		ArrayList<Tip> tips = new ArrayList<Tip>();
 
 		try {
 			
 			//date required
 			
 			String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
-			// Call Foursquare to get the Venues around
-			JSONObject venuesJson = executeHttpGet("https://api.foursquare.com/v2/venues/search"
+			// Call Foursquare to get the Tips around
+			JSONObject tipsJson = executeHttpGet("https://api.foursquare.com/v2/tips/search"
 					+ "?v="
 					+ apiDateVersion
 					+ "&ll="
 					+ mCriteria.getLocation().getLatitude()
 					+ ","
 					+ mCriteria.getLocation().getLongitude()
-					+ "&llAcc="
-					+ mCriteria.getLocation().getAccuracy()
 					+ "&query="
 					+ mCriteria.getQuery()
 					+ "&limit="
 					+ mCriteria.getQuantity()
-					+ "&intent="
-					+ mCriteria.getIntent().getValue()
-					+ "&radius="
-					+ mCriteria.getRadius() + "&oauth_token=" + access_token);
+					+ "&offset="
+					+ mCriteria.getOffset()
+					+ "&oauth_token=" + access_token);
 
 			// Get return code
-			int returnCode = Integer.parseInt(venuesJson.getJSONObject("meta")
+			int returnCode = Integer.parseInt(tipsJson.getJSONObject("meta")
 					.getString("code"));
 			// 200 = OK
 			if (returnCode == 200) {
 				Gson gson = new Gson();
-				JSONArray json = venuesJson.getJSONObject("response")
-						.getJSONArray("venues");
+				JSONArray json = tipsJson.getJSONObject("response")
+						.getJSONArray("tips");
 				for (int i = 0; i < json.length(); i++) {
-					Venue venue = gson.fromJson(json.getJSONObject(i)
-							.toString(), Venue.class);
-					venues.add(venue);
+					Tip tip = gson.fromJson(json.getJSONObject(i)
+							.toString(), Tip.class);
+					tips.add(tip);
 				}
 			} else {
 				if (mListener != null)
-					mListener.onError(venuesJson.getJSONObject("meta")
+					mListener.onError(tipsJson.getJSONObject("meta")
 							.getString("errorDetail"));
 			}
 
@@ -104,15 +101,15 @@ public class FoursquareVenuesRequest extends
 			if (mListener != null)
 				mListener.onError(exp.toString());
 		}
-		return venues;
+		return tips;
 	}
 
 	@Override
-	protected void onPostExecute(ArrayList<Venue> venues) {
+	protected void onPostExecute(ArrayList<Tip> tips) {
 		mProgress.dismiss();
 		if (mListener != null)
-			mListener.onVenuesFetched(venues);
-		super.onPostExecute(venues);
+			mListener.onTipsFetched(tips);
+		super.onPostExecute(tips);
 	}
 
 	// Calls a URI and returns the answer as a JSON object

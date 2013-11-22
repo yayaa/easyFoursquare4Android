@@ -18,7 +18,7 @@ import br.com.condesales.listeners.GetCheckInsListener;
 import br.com.condesales.listeners.TipsResquestListener;
 import br.com.condesales.listeners.UserInfoRequestListener;
 import br.com.condesales.listeners.VenuesHistoryListener;
-import br.com.condesales.tasks.TipsNearbyRequest;
+import br.com.condesales.tasks.tips.TipsNearbyRequest;
 import br.com.condesales.tasks.checkins.CheckInRequest;
 import br.com.condesales.tasks.users.GetCheckInsRequest;
 import br.com.condesales.tasks.users.GetFriendsRequest;

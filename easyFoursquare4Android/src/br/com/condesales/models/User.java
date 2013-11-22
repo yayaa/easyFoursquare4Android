@@ -20,7 +20,7 @@ public class User {
 	}
 
 	public String getPhoto() {
-		return photo.getPrefix() +"/100x100/"+  photo.getSuffix();
+		return photo.getPrefix() +"100x100"+  photo.getSuffix();
 	}
 
 	public long getId() {

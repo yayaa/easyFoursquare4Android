@@ -56,9 +56,13 @@ public class UserImageRequest extends AsyncTask<String, Integer, Bitmap> {
 				error = e;
 		} finally {
 			try {
-				is.close();
-				bis.close();
-			} catch (IOException e) {
+                if (is != null) {
+                    is.close();
+                }
+                if (bis != null) {
+                    bis.close();
+                }
+            } catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
