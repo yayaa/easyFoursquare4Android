@@ -15,6 +15,7 @@ getUserInfo //any user
 getVenuesNearby
 getVenueDetails
 getTrendingVenuesNearby
+getTipsNearby
 checkIn
 getCheckIns //any user
 getFriends //any user
