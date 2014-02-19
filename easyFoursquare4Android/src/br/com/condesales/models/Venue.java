@@ -30,7 +30,7 @@ public class Venue {
 
 	private String shortUrl;
 
-	private boolean dislake;
+	private boolean dislike;
 
 	private String url;
 
@@ -49,7 +49,7 @@ public class Venue {
 	}
 
 	public boolean isDislake() {
-		return dislake;
+		return dislike;
 	}
 
 	public HereNow getHereNow() {
