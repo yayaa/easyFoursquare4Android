@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
 import br.com.condesales.listeners.ImageRequestListener;
-import br.com.condesales.listeners.TipsResquestListener;
+import br.com.condesales.listeners.TipsRequestListener;
 import br.com.condesales.listeners.UserInfoRequestListener;
 import br.com.condesales.models.Tip;
 import br.com.condesales.models.User;
@@ -40,11 +40,6 @@ public class MainActivity extends Activity implements
         async.requestAccess(this);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
     private void requestTipsNearby(String accessToken) {
         Location loc = new Location("");
         loc.setLatitude(40.4363483);
@@ -52,7 +47,7 @@ public class MainActivity extends Activity implements
 
         TipsCriteria criteria = new TipsCriteria();
         criteria.setLocation(loc);
-        async.getTipsNearby(new TipsResquestListener() {
+        async.getTipsNearby(new TipsRequestListener() {
 
             @Override
             public void onError(String errorMsg) {
