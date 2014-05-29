@@ -68,7 +68,7 @@ public class FoursquareVenuesNearbyRequest extends
             //date required
             String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
             // Call Foursquare to get the Venues around
-            JSONObject venuesJson = executeHttpGet("https://api.foursquare.com/v2/venues/search"
+            String uri = "https://api.foursquare.com/v2/venues/search"
                     + "?v="
                     + apiDateVersion
                     + "&ll="
@@ -84,7 +84,14 @@ public class FoursquareVenuesNearbyRequest extends
                     + "&intent="
                     + mCriteria.getIntent().getValue()
                     + "&radius="
-                    + mCriteria.getRadius() + "&oauth_token=" + access_token);
+                    + mCriteria.getRadius();
+            if (!access_token.equals("")) {
+                uri = uri + "&oauth_token=" + access_token;
+            } else {
+                uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
+            }
+
+            JSONObject venuesJson = executeHttpGet(uri);
 
             // Get return code
             int returnCode = Integer.parseInt(venuesJson.getJSONObject("meta")
