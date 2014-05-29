@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import javax.net.ssl.SSLPeerUnverifiedException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -13,7 +15,10 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.widget.Toast;
 import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.VenuesCriteria;
 import br.com.condesales.listeners.FoursquareVenuesResquestListener;
@@ -28,7 +33,8 @@ public class FoursquareVenuesNearbyRequest extends
 	private ProgressDialog mProgress;
 	private FoursquareVenuesResquestListener mListener;
 	private VenuesCriteria mCriteria;
-
+	private boolean sslExp;
+	
 	public FoursquareVenuesNearbyRequest(Activity activity,
 			FoursquareVenuesResquestListener listener, VenuesCriteria criteria) {
 		mActivity = activity;
@@ -98,7 +104,11 @@ public class FoursquareVenuesNearbyRequest extends
 							.getString("errorDetail"));
 			}
 
-		} catch (Exception exp) {
+		} catch (SSLPeerUnverifiedException sslExp) {
+				this.sslExp = true;
+				sslExp.printStackTrace();
+		}
+		catch (Exception exp) {
 			exp.printStackTrace();
 			if (mListener != null)
 				mListener.onError(exp.toString());
@@ -108,6 +118,12 @@ public class FoursquareVenuesNearbyRequest extends
 
 	@Override
 	protected void onPostExecute(ArrayList<Venue> venues) {
+		if (sslExp) {
+			Toast.makeText(mActivity, "You must log in to the Wifi network first, " +
+					"or disconnect from it and use cellular connection.", Toast.LENGTH_LONG).show();
+			mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://google.com")));
+		}
+		
 		mProgress.dismiss();
 		if (mListener != null)
 			mListener.onVenuesFetched(venues);
