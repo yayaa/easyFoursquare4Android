@@ -63,7 +63,7 @@ public class TipsNearbyRequest extends
 
             String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
             // Call Foursquare to get the Tips around
-            JSONObject tipsJson = executeHttpGet("https://api.foursquare.com/v2/tips/search"
+            String uri = "https://api.foursquare.com/v2/tips/search"
                     + "?v="
                     + apiDateVersion
                     + "&ll="
@@ -75,9 +75,15 @@ public class TipsNearbyRequest extends
                     + "&limit="
                     + mCriteria.getQuantity()
                     + "&offset="
-                    + mCriteria.getOffset()
-                    + "&oauth_token=" + access_token);
-
+                    + mCriteria.getOffset();
+            if (!access_token.equals("")) {
+                uri = uri + "&oauth_token=" + access_token;
+            } else {
+                uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
+            }
+            
+            JSONObject tipsJson = executeHttpGet(uri);
+            
             // Get return code
             int returnCode = Integer.parseInt(tipsJson.getJSONObject("meta")
                     .getString("code"));

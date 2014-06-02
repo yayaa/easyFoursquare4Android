@@ -48,7 +48,7 @@ public class Venue {
 		return shortUrl;
 	}
 
-	public boolean isDislake() {
+	public boolean isDislike() {
 		return dislike;
 	}
 

@@ -2,10 +2,6 @@ package br.com.condesales.tasks.users;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
