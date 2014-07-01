@@ -63,7 +63,7 @@ public class FoursquareTrendingVenuesNearbyRequest extends
             //date required
             String apiDate = FoursquareConstants.API_DATE_VERSION;
             // Call Foursquare to get the Venues around
-            JSONObject venuesJson = executeHttpGet("https://api.foursquare.com/v2/venues/trending?"
+            String uri = "https://api.foursquare.com/v2/venues/trending?"
                     + "?v="
                     + apiDate
                     + "&ll="
@@ -75,8 +75,14 @@ public class FoursquareTrendingVenuesNearbyRequest extends
                     + "&limit="
                     + mCriteria.getlimit()
                     + "&radius="
-                    + mCriteria.getRadius() + "&oauth_token=" + access_token);
-
+                    + mCriteria.getRadius();
+            if (!access_token.equals("")) {
+                uri = uri + "&oauth_token=" + access_token;
+            } else {
+                uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
+            }
+            
+            JSONObject venuesJson = executeHttpGet(uri);
 
             // Get return code
             int returnCode = Integer.parseInt(venuesJson.getJSONObject("meta")
