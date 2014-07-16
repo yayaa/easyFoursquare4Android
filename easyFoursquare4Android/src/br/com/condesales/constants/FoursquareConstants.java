@@ -12,4 +12,9 @@ public class FoursquareConstants {
     public static final String ACCESS_TOKEN = "access_token";
     public static final String USER_INFO = "user_info";
     public static final String API_DATE_VERSION = "20140714";
+
+    //endpoints
+    public static final String FOURSQUARE_API = "https://api.foursquare.com/v2/";
+    public static final String CHECKINS_ADD = FOURSQUARE_API + "checkins/add";
+
 }

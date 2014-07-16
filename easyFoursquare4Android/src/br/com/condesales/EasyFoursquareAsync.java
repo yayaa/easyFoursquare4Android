@@ -10,12 +10,12 @@ import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
 import br.com.condesales.criterias.VenuesCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
-import br.com.condesales.listeners.CheckInListener;
 import br.com.condesales.listeners.FoursquareTrendingVenuesRequestListener;
 import br.com.condesales.listeners.FoursquareVenueDetailsRequestListener;
 import br.com.condesales.listeners.FoursquareVenuesRequestListener;
 import br.com.condesales.listeners.FriendsListener;
 import br.com.condesales.listeners.GetCheckInsListener;
+import br.com.condesales.listeners.RequestListener;
 import br.com.condesales.listeners.TipsRequestListener;
 import br.com.condesales.listeners.UserInfoRequestListener;
 import br.com.condesales.listeners.VenuesHistoryListener;
@@ -120,8 +120,8 @@ public class EasyFoursquareAsync {
      *                 User object, containing the information about the check in.
      * @param criteria The criteria to your search request
      */
-    public void checkIn(CheckInListener listener, CheckInCriteria criteria) {
-        CheckInRequest request = new CheckInRequest(mActivity, listener,
+    public void checkIn(RequestListener listener, CheckInCriteria criteria) {
+        CheckInRequest request = new CheckInRequest(listener,
                 criteria);
         request.execute(getAccessToken());
     }

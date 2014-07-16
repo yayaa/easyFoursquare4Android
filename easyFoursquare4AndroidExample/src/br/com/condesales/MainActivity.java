@@ -14,11 +14,12 @@ import java.util.ArrayList;
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
-import br.com.condesales.listeners.CheckInListener;
 import br.com.condesales.listeners.ImageRequestListener;
+import br.com.condesales.listeners.RequestListener;
 import br.com.condesales.listeners.TipsRequestListener;
 import br.com.condesales.listeners.UserInfoRequestListener;
 import br.com.condesales.models.Checkin;
+import br.com.condesales.models.FoursquareError;
 import br.com.condesales.models.Tip;
 import br.com.condesales.models.User;
 import br.com.condesales.tasks.users.UserImageRequest;
@@ -117,15 +118,16 @@ public class MainActivity extends Activity implements
         criteria.setBroadcast(CheckInCriteria.BroadCastType.PUBLIC);
         criteria.setVenueId("4c7063da9c6d6dcb9798d27a");
 
-        async.checkIn(new CheckInListener() {
+        async.checkIn(new RequestListener<Checkin>() {
+
             @Override
-            public void onCheckInDone(Checkin checkin) {
-                Toast.makeText(MainActivity.this, checkin.getId(), Toast.LENGTH_LONG).show();
+            public void onSuccess(Checkin response) {
+                Toast.makeText(MainActivity.this, response.getId(), Toast.LENGTH_LONG).show();
             }
 
             @Override
-            public void onError(String errorMsg) {
-                Toast.makeText(MainActivity.this, "error", Toast.LENGTH_LONG).show();
+            public void onError(FoursquareError error) {
+                Toast.makeText(MainActivity.this, error.getErrorDetail(), Toast.LENGTH_LONG).show();
             }
         }, criteria);
     }

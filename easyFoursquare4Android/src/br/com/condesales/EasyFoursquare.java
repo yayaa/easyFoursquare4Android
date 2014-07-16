@@ -145,7 +145,7 @@ public class EasyFoursquare {
      * @param criteria The criteria to your search request
      */
     public Checkin checkIn(CheckInCriteria criteria) {
-        CheckInRequest request = new CheckInRequest(mActivity, criteria);
+        CheckInRequest request = new CheckInRequest(criteria);
         request.execute(getAccessToken());
         Checkin checkin = null;
         try {
