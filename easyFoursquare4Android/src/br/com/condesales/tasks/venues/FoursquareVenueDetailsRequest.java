@@ -1,12 +1,11 @@
 package br.com.condesales.tasks.venues;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -16,37 +15,25 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import br.com.condesales.constants.FoursquareConstants;
-import br.com.condesales.listeners.FoursquareVenueDetailsRequestListener;
+import br.com.condesales.listeners.RequestListener;
+import br.com.condesales.models.FoursquareError;
 import br.com.condesales.models.Venue;
 
-public class FoursquareVenueDetailsRequest extends
-        AsyncTask<String, Integer, Venue> {
+public class FoursquareVenueDetailsRequest extends AsyncTask<String, Integer, Venue> {
 
-    private Activity mActivity;
-    private ProgressDialog mProgress;
-    private FoursquareVenueDetailsRequestListener mListener;
+    private RequestListener<Venue> mListener;
     private String mVenueID;
+    private FoursquareError foursquareError;
 
-    public FoursquareVenueDetailsRequest(Activity activity,
-                                         FoursquareVenueDetailsRequestListener listener, String venueID) {
-        mActivity = activity;
+    public FoursquareVenueDetailsRequest(RequestListener<Venue> listener, String venueID) {
         mListener = listener;
         mVenueID = venueID;
     }
 
-    public FoursquareVenueDetailsRequest(Activity activity, String venueID) {
-        mActivity = activity;
+    public FoursquareVenueDetailsRequest(String venueID) {
         mVenueID = venueID;
     }
 
-    @Override
-    protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting venue details ...");
-        mProgress.show();
-        super.onPreExecute();
-    }
 
     @Override
     protected Venue doInBackground(String... params) {
@@ -67,37 +54,38 @@ public class FoursquareVenueDetailsRequest extends
             } else {
                 uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
             }
-            
+
             JSONObject venuesJson = executeHttpGet(uri);
+            Gson gson = new Gson();
 
             // Get return code
             int returnCode = Integer.parseInt(venuesJson.getJSONObject("meta")
                     .getString("code"));
             // 200 = OK
-            if (returnCode == 200) {
-                Gson gson = new Gson();
+            if (returnCode == HttpStatus.SC_OK) {
                 JSONObject json = venuesJson.getJSONObject("response")
                         .getJSONObject("venue");
                 venue = gson.fromJson(json.toString(), Venue.class);
             } else {
-                if (mListener != null)
-                    mListener.onError(venuesJson.getJSONObject("meta")
-                            .getString("errorDetail"));
+                foursquareError = gson.fromJson(venuesJson.getJSONObject("meta").toString(), FoursquareError.class);
             }
 
         } catch (Exception exp) {
             exp.printStackTrace();
-            if (mListener != null)
-                mListener.onError(exp.toString());
+            foursquareError = new FoursquareError();
+            foursquareError.setErrorDetail(exp.getMessage());
         }
         return venue;
     }
 
     @Override
     protected void onPostExecute(Venue venues) {
-        mProgress.dismiss();
         if (mListener != null)
-            mListener.onVenueDetailFetched(venues);
+            if (foursquareError == null) {
+                mListener.onSuccess(venues);
+            } else {
+                mListener.onError(foursquareError);
+            }
         super.onPostExecute(venues);
     }
 

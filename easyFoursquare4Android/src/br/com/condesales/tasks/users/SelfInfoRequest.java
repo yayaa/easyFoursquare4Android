@@ -1,9 +1,5 @@
 package br.com.condesales.tasks.users;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
@@ -19,32 +15,20 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import br.com.condesales.constants.FoursquareConstants;
-import br.com.condesales.listeners.UserInfoRequestListener;
+import br.com.condesales.listeners.RequestListener;
+import br.com.condesales.models.FoursquareError;
 import br.com.condesales.models.User;
 
 public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
 
-    private Activity mActivity;
-    private ProgressDialog mProgress;
-    private UserInfoRequestListener mListener;
-    private Exception error;
+    private RequestListener<User> mListener;
+    private FoursquareError foursquareError;
 
-    public SelfInfoRequest(Activity activity, UserInfoRequestListener listener) {
-        mActivity = activity;
+    public SelfInfoRequest(RequestListener<User> listener) {
         mListener = listener;
     }
 
-    public SelfInfoRequest(Activity activity) {
-        mActivity = activity;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting user info ...");
-        mProgress.show();
-        super.onPreExecute();
+    public SelfInfoRequest() {
     }
 
     @Override
@@ -54,55 +38,41 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
         User user = null;
         Gson gson = new Gson();
         // Check if there is a parameter called "code"
-        if (token != null && retrieveUserInfo().equals("")) {
-            try {
-                //date required
-                String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
-                // Get userdata of myself
-                JSONObject jsonResponse = executeHttpGet("https://api.foursquare.com/v2/"
-                        + "users/self"
-                        + "?v=" + apiDateVersion
-                        + "&oauth_token=" + token);
-                // Get return code
-                int returnCode = jsonResponse.getJSONObject("meta").getInt("code");
-                // 200 = OK
-                if (returnCode == HttpStatus.SC_OK) {
-                    String json = jsonResponse.getJSONObject("response")
-                            .getJSONObject("user").toString();
-                    saveUserInfo(json);
-                    user = gson.fromJson(json, User.class);
-                } else {
-                    if (mListener != null) {
-                        error = new Exception(jsonResponse.getJSONObject("meta").getString("errorDetail"));
-                        return null;
-                    }
-                }
-            } catch (Exception exp) {
-                if (mListener != null) {
-                    error = exp;
-                    return null;
-                }
-
+        try {
+            //date required
+            String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
+            // Get userdata of myself
+            JSONObject jsonResponse = executeHttpGet("https://api.foursquare.com/v2/"
+                    + "users/self"
+                    + "?v=" + apiDateVersion
+                    + "&oauth_token=" + token);
+            // Get return code
+            int returnCode = jsonResponse.getJSONObject("meta").getInt("code");
+            // 200 = OK
+            if (returnCode == HttpStatus.SC_OK) {
+                String json = jsonResponse.getJSONObject("response")
+                        .getJSONObject("user").toString();
+                user = gson.fromJson(json, User.class);
+            } else {
+                foursquareError = gson.fromJson(jsonResponse.getJSONObject("meta").toString(), FoursquareError.class);
             }
-        } else {
-            user = gson.fromJson(retrieveUserInfo(), User.class);
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            foursquareError = new FoursquareError();
+            foursquareError.setErrorDetail(exp.getMessage());
         }
 
-        UserImageRequest request = new UserImageRequest(mActivity);
-        Bitmap bitmap = request.getFileInCache();
-        user.setBitmapPhoto(bitmap);
         return user;
     }
 
     @Override
     protected void onPostExecute(User result) {
-        mProgress.dismiss();
         if (mListener != null) {
-            if (error != null) {
-                mListener.onError(error.getMessage());
-                return;
+            if (foursquareError == null) {
+                mListener.onSuccess(result);
+            } else {
+                mListener.onError(foursquareError);
             }
-            mListener.onUserInfoFetched(result);
         }
         super.onPostExecute(result);
     }
@@ -128,21 +98,6 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
         }
 
         return new JSONObject(sb.toString());
-    }
-
-    private void saveUserInfo(String userJson) {
-        SharedPreferences settings = mActivity.getSharedPreferences(
-                FoursquareConstants.SHARED_PREF_FILE, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(FoursquareConstants.USER_INFO, userJson);
-        // Commit the edits!
-        editor.commit();
-    }
-
-    private String retrieveUserInfo() {
-        SharedPreferences settings = mActivity.getSharedPreferences(
-                FoursquareConstants.SHARED_PREF_FILE, 0);
-        return settings.getString(FoursquareConstants.USER_INFO, "");
     }
 
 }

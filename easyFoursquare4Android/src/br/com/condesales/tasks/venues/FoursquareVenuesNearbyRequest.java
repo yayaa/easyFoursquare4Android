@@ -1,15 +1,11 @@
 package br.com.condesales.tasks.venues;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -20,41 +16,26 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
-
 import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.VenuesCriteria;
-import br.com.condesales.listeners.FoursquareVenuesRequestListener;
+import br.com.condesales.listeners.RequestListener;
+import br.com.condesales.models.FoursquareError;
 import br.com.condesales.models.Venue;
 
-public class FoursquareVenuesNearbyRequest extends
-        AsyncTask<String, Integer, ArrayList<Venue>> {
+public class FoursquareVenuesNearbyRequest extends AsyncTask<String, Integer, ArrayList<Venue>> {
 
-    private Activity mActivity;
-    private ProgressDialog mProgress;
-    private FoursquareVenuesRequestListener mListener;
+    private RequestListener<ArrayList<Venue>> mListener;
     private VenuesCriteria mCriteria;
     private boolean sslExp;
+    private FoursquareError foursquareError;
 
-    public FoursquareVenuesNearbyRequest(Activity activity,
-                                         FoursquareVenuesRequestListener listener, VenuesCriteria criteria) {
-        mActivity = activity;
+    public FoursquareVenuesNearbyRequest(VenuesCriteria criteria, RequestListener<ArrayList<Venue>> listener) {
         mListener = listener;
         mCriteria = criteria;
     }
 
-    public FoursquareVenuesNearbyRequest(Activity activity, VenuesCriteria criteria) {
-        mActivity = activity;
+    public FoursquareVenuesNearbyRequest(VenuesCriteria criteria) {
         mCriteria = criteria;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting venues nearby ...");
-        mProgress.show();
-        super.onPreExecute();
     }
 
     @Override
@@ -92,13 +73,13 @@ public class FoursquareVenuesNearbyRequest extends
             }
 
             JSONObject venuesJson = executeHttpGet(uri);
+            Gson gson = new Gson();
 
             // Get return code
             int returnCode = Integer.parseInt(venuesJson.getJSONObject("meta")
                     .getString("code"));
             // 200 = OK
-            if (returnCode == 200) {
-                Gson gson = new Gson();
+            if (returnCode == HttpStatus.SC_OK) {
                 JSONArray json = venuesJson.getJSONObject("response")
                         .getJSONArray("venues");
                 for (int i = 0; i < json.length(); i++) {
@@ -107,33 +88,25 @@ public class FoursquareVenuesNearbyRequest extends
                     venues.add(venue);
                 }
             } else {
-                if (mListener != null)
-                    mListener.onError(venuesJson.getJSONObject("meta")
-                            .getString("errorDetail"));
+                foursquareError = gson.fromJson(venuesJson.getJSONObject("meta").toString(), FoursquareError.class);
             }
 
-        } catch (SSLPeerUnverifiedException sslExp) {
-            this.sslExp = true;
-            sslExp.printStackTrace();
         } catch (Exception exp) {
             exp.printStackTrace();
-            if (mListener != null)
-                mListener.onError(exp.toString());
+            foursquareError = new FoursquareError();
+            foursquareError.setErrorDetail(exp.getMessage());
         }
         return venues;
     }
 
     @Override
     protected void onPostExecute(ArrayList<Venue> venues) {
-        if (sslExp) {
-            Toast.makeText(mActivity, "You must log in to the Wifi network first, " +
-                    "or disconnect from it and use cellular connection.", Toast.LENGTH_LONG).show();
-            mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://google.com")));
-        }
-
-        mProgress.dismiss();
         if (mListener != null)
-            mListener.onVenuesFetched(venues);
+            if (foursquareError == null) {
+                mListener.onSuccess(venues);
+            } else {
+                mListener.onError(foursquareError);
+            }
         super.onPostExecute(venues);
     }
 

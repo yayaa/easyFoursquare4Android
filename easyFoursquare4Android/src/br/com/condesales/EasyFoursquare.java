@@ -11,7 +11,7 @@ import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
 import br.com.condesales.criterias.VenuesCriteria;
-import br.com.condesales.listeners.AccessTokenRequestListener;
+import br.com.condesales.listeners.RequestListener;
 import br.com.condesales.models.Checkin;
 import br.com.condesales.models.Tip;
 import br.com.condesales.models.User;
@@ -36,7 +36,6 @@ import br.com.condesales.tasks.venues.FoursquareVenuesNearbyRequest;
 public class EasyFoursquare {
 
     private Activity mActivity;
-    private FoursquareDialog mDialog;
     private String mAccessToken = "";
 
     public EasyFoursquare(Activity activity) {
@@ -46,11 +45,11 @@ public class EasyFoursquare {
     /**
      * Requests the access to API
      */
-    public void requestAccess(AccessTokenRequestListener listener) {
+    public void requestAccess(RequestListener<String> listener) {
         if (!hasAccessToken()) {
             loginDialog(listener);
         } else {
-            listener.onAccessGrant(getAccessToken());
+            listener.onSuccess(getAccessToken());
         }
     }
 
@@ -60,7 +59,7 @@ public class EasyFoursquare {
      * @return The user information
      */
     public User getUserInfo() {
-        SelfInfoRequest request = new SelfInfoRequest(mActivity);
+        SelfInfoRequest request = new SelfInfoRequest();
         request.execute(getAccessToken());
         User user = null;
         try {
@@ -79,8 +78,7 @@ public class EasyFoursquare {
      * @param criteria The criteria to your search request
      */
     public ArrayList<Venue> getVenuesNearby(VenuesCriteria criteria) {
-        FoursquareVenuesNearbyRequest request = new FoursquareVenuesNearbyRequest(
-                mActivity, criteria);
+        FoursquareVenuesNearbyRequest request = new FoursquareVenuesNearbyRequest(criteria);
         request.execute(getAccessToken());
         ArrayList<Venue> venues = new ArrayList<Venue>();
         try {
@@ -99,8 +97,7 @@ public class EasyFoursquare {
      * @param criteria The criteria to your search request
      */
     public ArrayList<Tip> getTipsNearby(TipsCriteria criteria) {
-        TipsNearbyRequest request = new TipsNearbyRequest(
-                mActivity, criteria);
+        TipsNearbyRequest request = new TipsNearbyRequest(criteria);
         request.execute(getAccessToken());
         ArrayList<Tip> tips = new ArrayList<Tip>();
         try {
@@ -120,7 +117,7 @@ public class EasyFoursquare {
      * @param criteria The criteria to your search request
      */
     public ArrayList<Venue> getTrendingVenuesNearby(TrendingVenuesCriteria criteria) {
-        FoursquareTrendingVenuesNearbyRequest request = new FoursquareTrendingVenuesNearbyRequest(mActivity, criteria);
+        FoursquareTrendingVenuesNearbyRequest request = new FoursquareTrendingVenuesNearbyRequest(criteria);
         request.execute(getAccessToken());
         ArrayList<Venue> venues = new ArrayList<Venue>();
         try {
@@ -135,7 +132,7 @@ public class EasyFoursquare {
 
 
     public void getVenueDetail(String venueID) {
-        FoursquareVenueDetailsRequest request = new FoursquareVenueDetailsRequest(mActivity, venueID);
+        FoursquareVenueDetailsRequest request = new FoursquareVenueDetailsRequest(venueID);
         request.execute(getAccessToken());
     }
 
@@ -159,7 +156,7 @@ public class EasyFoursquare {
     }
 
     public ArrayList<Checkin> getcheckIns() {
-        GetCheckInsRequest request = new GetCheckInsRequest(mActivity);
+        GetCheckInsRequest request = new GetCheckInsRequest();
         request.execute(getAccessToken());
         ArrayList<Checkin> checkins = null;
         try {
@@ -173,7 +170,7 @@ public class EasyFoursquare {
     }
 
     public ArrayList<Checkin> getcheckIns(String userID) {
-        GetCheckInsRequest request = new GetCheckInsRequest(mActivity, userID);
+        GetCheckInsRequest request = new GetCheckInsRequest(userID);
         request.execute(getAccessToken());
         ArrayList<Checkin> checkins = null;
         try {
@@ -187,7 +184,7 @@ public class EasyFoursquare {
     }
 
     public ArrayList<User> getFriends() {
-        GetFriendsRequest request = new GetFriendsRequest(mActivity);
+        GetFriendsRequest request = new GetFriendsRequest();
         request.execute(getAccessToken());
         ArrayList<User> users = null;
         try {
@@ -201,8 +198,7 @@ public class EasyFoursquare {
     }
 
     public ArrayList<Venues> getVenuesHistory() {
-        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest(
-                mActivity);
+        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest();
         request.execute(getAccessToken());
         ArrayList<Venues> venues = null;
         try {
@@ -216,8 +212,7 @@ public class EasyFoursquare {
     }
 
     public ArrayList<Venues> getVenuesHistory(String userID) {
-        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest(
-                mActivity, userID);
+        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest(userID);
         request.execute(getAccessToken());
         ArrayList<Venues> venues = null;
         try {
@@ -231,7 +226,7 @@ public class EasyFoursquare {
     }
 
     public ArrayList<User> getFriends(String userID) {
-        GetFriendsRequest request = new GetFriendsRequest(mActivity, userID);
+        GetFriendsRequest request = new GetFriendsRequest(userID);
         request.execute(getAccessToken());
         ArrayList<User> users = null;
         try {
@@ -267,13 +262,13 @@ public class EasyFoursquare {
     /**
      * Requests the Foursquare login though a dialog.
      */
-    private void loginDialog(AccessTokenRequestListener listener) {
+    private void loginDialog(RequestListener<String> listener) {
         String url = "https://foursquare.com/oauth2/authenticate"
                 + "?client_id=" + FoursquareConstants.CLIENT_ID
                 + "&response_type=code" + "&redirect_uri="
                 + FoursquareConstants.CALLBACK_URL;
 
-        mDialog = new FoursquareDialog(mActivity, url, listener);
+        FoursquareDialog mDialog = new FoursquareDialog(mActivity, url, listener);
         mDialog.show();
     }
 

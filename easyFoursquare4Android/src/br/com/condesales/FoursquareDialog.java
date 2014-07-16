@@ -19,147 +19,148 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import br.com.condesales.constants.FoursquareConstants;
-import br.com.condesales.listeners.AccessTokenRequestListener;
+import br.com.condesales.listeners.RequestListener;
+import br.com.condesales.models.FoursquareError;
 import br.com.condesales.tasks.AccessTokenRequest;
 
 /**
  * Display Foursquare authentication dialog.
- * 
+ *
  * @author Lorensius W. L. T <lorenz@londatiga.net>
- * 
  */
 public class FoursquareDialog extends Dialog {
-	static final float[] DIMENSIONS_LANDSCAPE = { 460, 260 };
-	static final float[] DIMENSIONS_PORTRAIT = { 280, 420 };
-	static final FrameLayout.LayoutParams FILL = new FrameLayout.LayoutParams(
-			ViewGroup.LayoutParams.MATCH_PARENT,
-			ViewGroup.LayoutParams.MATCH_PARENT);
-	static final int MARGIN = 4;
-	static final int PADDING = 2;
+    static final float[] DIMENSIONS_LANDSCAPE = {460, 260};
+    static final float[] DIMENSIONS_PORTRAIT = {280, 420};
+    static final FrameLayout.LayoutParams FILL = new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT);
+    static final int MARGIN = 4;
+    static final int PADDING = 2;
+    private static final String TAG = "Foursquare-WebView";
+    private String mUrl;
+    private RequestListener<String> mListener;
+    private ProgressDialog mSpinner;
+    private WebView mWebView;
+    private LinearLayout mContent;
+    private TextView mTitle;
+    private Activity mActivity;
 
-	private String mUrl;
-	private AccessTokenRequestListener mListener;
-	private ProgressDialog mSpinner;
-	private WebView mWebView;
-	private LinearLayout mContent;
-	private TextView mTitle;
-	private Activity mActivity;
+    public FoursquareDialog(Activity activity, String url,
+                            RequestListener<String> listener) {
+        super(activity);
+        mActivity = activity;
+        mUrl = url;
+        mListener = listener;
+    }
 
-	private static final String TAG = "Foursquare-WebView";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mSpinner = new ProgressDialog(getContext());
 
-	public FoursquareDialog(Activity activity, String url,
-			AccessTokenRequestListener listener) {
-		super(activity);
-		mActivity = activity;
-		mUrl = url;
-		mListener = listener;
-	}
+        mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mSpinner.setMessage("Loading...");
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mSpinner = new ProgressDialog(getContext());
+        mContent = new LinearLayout(getContext());
 
-		mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		mSpinner.setMessage("Loading...");
+        mContent.setOrientation(LinearLayout.VERTICAL);
 
-		mContent = new LinearLayout(getContext());
+        setUpTitle();
+        setUpWebView();
 
-		mContent.setOrientation(LinearLayout.VERTICAL);
+        Display display = getWindow().getWindowManager().getDefaultDisplay();
+        final float scale = getContext().getResources().getDisplayMetrics().density;
+        float[] dimensions = (display.getWidth() < display.getHeight()) ? DIMENSIONS_PORTRAIT
+                : DIMENSIONS_LANDSCAPE;
 
-		setUpTitle();
-		setUpWebView();
+        addContentView(mContent, new FrameLayout.LayoutParams(
+                (int) (dimensions[0] * scale + 0.5f), (int) (dimensions[1]
+                * scale + 0.5f)
+        ));
 
-		Display display = getWindow().getWindowManager().getDefaultDisplay();
-		final float scale = getContext().getResources().getDisplayMetrics().density;
-		float[] dimensions = (display.getWidth() < display.getHeight()) ? DIMENSIONS_PORTRAIT
-				: DIMENSIONS_LANDSCAPE;
+        CookieSyncManager.createInstance(getContext());
 
-		addContentView(mContent, new FrameLayout.LayoutParams(
-				(int) (dimensions[0] * scale + 0.5f), (int) (dimensions[1]
-						* scale + 0.5f)));
+        CookieManager cookieManager = CookieManager.getInstance();
 
-		CookieSyncManager.createInstance(getContext());
+        cookieManager.removeAllCookie();
+    }
 
-		CookieManager cookieManager = CookieManager.getInstance();
+    private void setUpTitle() {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		cookieManager.removeAllCookie();
-	}
+        Drawable icon = getContext().getResources().getDrawable(
+                R.drawable.foursquare_icon);
 
-	private void setUpTitle() {
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mTitle = new TextView(getContext());
 
-		Drawable icon = getContext().getResources().getDrawable(
-				R.drawable.foursquare_icon);
+        mTitle.setText("Foursquare");
+        mTitle.setTextColor(Color.WHITE);
+        mTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        mTitle.setBackgroundColor(0xFF0cbadf);
+        mTitle.setPadding(MARGIN + PADDING, MARGIN, MARGIN, MARGIN);
+        mTitle.setCompoundDrawablePadding(MARGIN + PADDING);
+        mTitle.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
-		mTitle = new TextView(getContext());
+        mContent.addView(mTitle);
+    }
 
-		mTitle.setText("Foursquare");
-		mTitle.setTextColor(Color.WHITE);
-		mTitle.setTypeface(Typeface.DEFAULT_BOLD);
-		mTitle.setBackgroundColor(0xFF0cbadf);
-		mTitle.setPadding(MARGIN + PADDING, MARGIN, MARGIN, MARGIN);
-		mTitle.setCompoundDrawablePadding(MARGIN + PADDING);
-		mTitle.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+    private void setUpWebView() {
+        mWebView = new WebView(getContext());
 
-		mContent.addView(mTitle);
-	}
+        mWebView.setVerticalScrollBarEnabled(false);
+        mWebView.setHorizontalScrollBarEnabled(false);
+        mWebView.setWebViewClient(new FoursquareWebViewClient());
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.loadUrl(mUrl);
+        mWebView.setLayoutParams(FILL);
 
-	private void setUpWebView() {
-		mWebView = new WebView(getContext());
+        mContent.addView(mWebView);
+    }
 
-		mWebView.setVerticalScrollBarEnabled(false);
-		mWebView.setHorizontalScrollBarEnabled(false);
-		mWebView.setWebViewClient(new FoursquareWebViewClient());
-		mWebView.getSettings().setJavaScriptEnabled(true);
-		mWebView.loadUrl(mUrl);
-		mWebView.setLayoutParams(FILL);
+    private class FoursquareWebViewClient extends WebViewClient {
 
-		mContent.addView(mWebView);
-	}
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d(TAG, "Redirecting URL " + url);
 
-	private class FoursquareWebViewClient extends WebViewClient {
+            if (url.startsWith(FoursquareConstants.CALLBACK_URL)) {
+                String urls[] = url.split("=");
+                AccessTokenRequest request = new AccessTokenRequest(mActivity, mListener);
+                request.execute(urls[1]);
+                FoursquareDialog.this.dismiss();
+                return true;
+            }
+            return false;
+        }
 
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			Log.d(TAG, "Redirecting URL " + url);
+        @Override
+        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            Log.d(TAG, "Page error: " + description);
+            super.onReceivedError(view, errorCode, description, failingUrl);
+            FoursquareError foursquareError = new FoursquareError();
+            foursquareError.setErrorDetail(description);
+            foursquareError.setCode(errorCode);
+            mListener.onError(foursquareError);
+            FoursquareDialog.this.dismiss();
+        }
 
-			if (url.startsWith(FoursquareConstants.CALLBACK_URL)) {
-				String urls[] = url.split("=");
-				AccessTokenRequest request = new AccessTokenRequest(mActivity, mListener);
-				request.execute(urls[1]);
-				FoursquareDialog.this.dismiss();
-				return true;
-			}
-			return false;
-		}
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            Log.d(TAG, "Loading URL: " + url);
+            super.onPageStarted(view, url, favicon);
+            mSpinner.show();
+        }
 
-		@Override
-		public void onReceivedError(WebView view, int errorCode,
-				String description, String failingUrl) {
-			Log.d(TAG, "Page error: " + description);
-
-			super.onReceivedError(view, errorCode, description, failingUrl);
-			mListener.onError(description);
-			FoursquareDialog.this.dismiss();
-		}
-
-		@Override
-		public void onPageStarted(WebView view, String url, Bitmap favicon) {
-			Log.d(TAG, "Loading URL: " + url);
-			super.onPageStarted(view, url, favicon);
-			mSpinner.show();
-		}
-
-		@Override
-		public void onPageFinished(WebView view, String url) {
-			super.onPageFinished(view, url);
-			String title = mWebView.getTitle();
-			if (title != null && title.length() > 0) {
-				mTitle.setText(title);
-			}
-			mSpinner.dismiss();
-		}
-	}
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            String title = mWebView.getTitle();
+            if (title != null && title.length() > 0) {
+                mTitle.setText(title);
+            }
+            mSpinner.dismiss();
+        }
+    }
 }

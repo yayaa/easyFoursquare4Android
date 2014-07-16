@@ -38,8 +38,7 @@ public class CheckInRequest extends AsyncTask<String, Integer, Checkin> {
      * @param listener the listener where the async request should respond to
      * @param criteria the object containing all the params from check in
      */
-    public CheckInRequest(RequestListener<Checkin> listener,
-                          CheckInCriteria criteria) {
+    public CheckInRequest(CheckInCriteria criteria, RequestListener<Checkin> listener) {
         mListener = listener;
         mCriteria = criteria;
     }
@@ -73,8 +72,7 @@ public class CheckInRequest extends AsyncTask<String, Integer, Checkin> {
                 JSONObject json = venuesJson.getJSONObject("response").getJSONObject("checkin");
                 checkin = gson.fromJson(json.toString(), Checkin.class);
             } else {
-                String errorString = venuesJson.getJSONObject("meta")
-                        .getString("errorDetail");
+                String errorString = venuesJson.getJSONObject("meta").toString();
                 foursquareError = gson.fromJson(errorString, FoursquareError.class);
             }
 

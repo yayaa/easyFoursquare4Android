@@ -13,11 +13,7 @@ import java.util.ArrayList;
 
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
-import br.com.condesales.listeners.AccessTokenRequestListener;
-import br.com.condesales.listeners.ImageRequestListener;
 import br.com.condesales.listeners.RequestListener;
-import br.com.condesales.listeners.TipsRequestListener;
-import br.com.condesales.listeners.UserInfoRequestListener;
 import br.com.condesales.models.Checkin;
 import br.com.condesales.models.FoursquareError;
 import br.com.condesales.models.Tip;
@@ -25,12 +21,13 @@ import br.com.condesales.models.User;
 import br.com.condesales.tasks.users.UserImageRequest;
 
 public class MainActivity extends Activity implements
-        AccessTokenRequestListener, ImageRequestListener {
+        RequestListener<String> {
 
     private EasyFoursquareAsync async;
     private ImageView userImage;
     private ViewSwitcher viewSwitcher;
     private TextView userName;
+    private RequestListener<Bitmap> userImageListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,53 +41,6 @@ public class MainActivity extends Activity implements
         async.requestAccess(this);
     }
 
-
-    @Override
-    public void onError(String errorMsg) {
-        // Do something with the error message
-        Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onAccessGrant(String accessToken) {
-        // with the access token you can perform any request to foursquare.
-        // example:
-        async.getUserInfo(new UserInfoRequestListener() {
-
-            @Override
-            public void onError(String errorMsg) {
-                // Some error getting user info
-                Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_LONG)
-                        .show();
-            }
-
-            @Override
-            public void onUserInfoFetched(User user) {
-                // OWww. did i already got user!?
-                if (user.getBitmapPhoto() == null) {
-                    UserImageRequest request = new UserImageRequest(
-                            MainActivity.this, MainActivity.this);
-                    request.execute(user.getPhoto());
-                } else {
-                    userImage.setImageBitmap(user.getBitmapPhoto());
-                }
-                userName.setText(user.getFirstName() + " " + user.getLastName());
-                viewSwitcher.showNext();
-                Toast.makeText(MainActivity.this, "Got it!", Toast.LENGTH_LONG)
-                        .show();
-            }
-        });
-
-        //for another examples uncomment lines below:
-        //requestTipsNearby();
-        checkin();
-    }
-
-    @Override
-    public void onImageFetched(Bitmap bmp) {
-        userImage.setImageBitmap(bmp);
-    }
-
     private void requestTipsNearby() {
         Location loc = new Location("");
         loc.setLatitude(40.4363483);
@@ -98,18 +48,18 @@ public class MainActivity extends Activity implements
 
         TipsCriteria criteria = new TipsCriteria();
         criteria.setLocation(loc);
-        async.getTipsNearby(new TipsRequestListener() {
+        async.getTipsNearby(criteria, new RequestListener<ArrayList<Tip>>() {
 
             @Override
-            public void onError(String errorMsg) {
-                Toast.makeText(MainActivity.this, "error", Toast.LENGTH_LONG).show();
+            public void onError(FoursquareError foursquareError) {
+                Toast.makeText(MainActivity.this, foursquareError.getErrorDetail(), Toast.LENGTH_LONG).show();
             }
 
             @Override
-            public void onTipsFetched(ArrayList<Tip> tips) {
+            public void onSuccess(ArrayList<Tip> tips) {
                 Toast.makeText(MainActivity.this, tips.toString(), Toast.LENGTH_LONG).show();
             }
-        }, criteria);
+        });
     }
 
     private void checkin() {
@@ -118,7 +68,7 @@ public class MainActivity extends Activity implements
         criteria.setBroadcast(CheckInCriteria.BroadCastType.PUBLIC);
         criteria.setVenueId("4c7063da9c6d6dcb9798d27a");
 
-        async.checkIn(new RequestListener<Checkin>() {
+        async.checkIn(criteria, new RequestListener<Checkin>() {
 
             @Override
             public void onSuccess(Checkin response) {
@@ -129,8 +79,67 @@ public class MainActivity extends Activity implements
             public void onError(FoursquareError error) {
                 Toast.makeText(MainActivity.this, error.getErrorDetail(), Toast.LENGTH_LONG).show();
             }
-        }, criteria);
+        });
     }
 
 
+    private void fetchUserInfo() {
+        async.getUserInfo(new RequestListener<User>() {
+
+            @Override
+            public void onSuccess(User user) {
+                userName.setText(user.getFirstName() + " " + user.getLastName());
+                viewSwitcher.showNext();
+                Toast.makeText(MainActivity.this, "Got it!", Toast.LENGTH_LONG)
+                        .show();
+                fetchUserImage(user);
+            }
+
+            @Override
+            public void onError(FoursquareError error) {
+                // Some error getting user info
+                Toast.makeText(MainActivity.this, error.getErrorDetail(), Toast.LENGTH_LONG)
+                        .show();
+            }
+
+        });
+    }
+
+    private void fetchUserImage(User user) {
+        // OWww. did i already got user!?
+        userImageListener = new RequestListener<Bitmap>() {
+            @Override
+            public void onSuccess(Bitmap userImage) {
+                MainActivity.this.userImage.setImageBitmap(userImage);
+            }
+
+            @Override
+            public void onError(FoursquareError error) {
+                // Some error getting user image
+                Toast.makeText(MainActivity.this, error.getErrorDetail(), Toast.LENGTH_LONG)
+                        .show();
+            }
+        };
+
+        UserImageRequest request = new UserImageRequest(userImageListener);
+        request.execute(user.getPhoto());
+    }
+
+    @Override
+    public void onSuccess(String accessToken) {
+        // with the access token you can perform any request to foursquare.
+        // example:
+        fetchUserInfo();
+
+        //for another examples uncomment lines below:
+        //requestTipsNearby();
+        //checkin();
+    }
+
+    @Override
+    public void onError(FoursquareError error) {
+        // Some error trying to login
+        Toast.makeText(MainActivity.this, error.getErrorDetail(), Toast.LENGTH_LONG)
+                .show();
+    }
 }

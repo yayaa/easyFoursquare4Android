@@ -1,12 +1,11 @@
 package br.com.condesales.tasks.venues;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -19,37 +18,23 @@ import java.util.ArrayList;
 
 import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
-import br.com.condesales.listeners.FoursquareTrendingVenuesRequestListener;
+import br.com.condesales.listeners.RequestListener;
+import br.com.condesales.models.FoursquareError;
 import br.com.condesales.models.Venue;
 
-public class FoursquareTrendingVenuesNearbyRequest extends
-        AsyncTask<String, Integer, ArrayList<Venue>> {
+public class FoursquareTrendingVenuesNearbyRequest extends AsyncTask<String, Integer, ArrayList<Venue>> {
 
-    private Activity mActivity;
-    private ProgressDialog mProgress;
-    private FoursquareTrendingVenuesRequestListener mListener;
+    private RequestListener<ArrayList<Venue>> mListener;
     private TrendingVenuesCriteria mCriteria;
+    private FoursquareError foursquareError;
 
-    public FoursquareTrendingVenuesNearbyRequest(Activity activity,
-                                                 FoursquareTrendingVenuesRequestListener listener, TrendingVenuesCriteria criteria) {
-        mActivity = activity;
+    public FoursquareTrendingVenuesNearbyRequest(TrendingVenuesCriteria criteria, RequestListener<ArrayList<Venue>> listener) {
         mListener = listener;
         mCriteria = criteria;
-
     }
 
-    public FoursquareTrendingVenuesNearbyRequest(Activity activity, TrendingVenuesCriteria criteria) {
-        mActivity = activity;
+    public FoursquareTrendingVenuesNearbyRequest(TrendingVenuesCriteria criteria) {
         mCriteria = criteria;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting trending venues nearby ...");
-        mProgress.show();
-        super.onPreExecute();
     }
 
     @Override
@@ -81,15 +66,15 @@ public class FoursquareTrendingVenuesNearbyRequest extends
             } else {
                 uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
             }
-            
+
+            Gson gson = new Gson();
             JSONObject venuesJson = executeHttpGet(uri);
 
             // Get return code
             int returnCode = Integer.parseInt(venuesJson.getJSONObject("meta")
                     .getString("code"));
             // 200 = OK
-            if (returnCode == 200) {
-                Gson gson = new Gson();
+            if (returnCode == HttpStatus.SC_OK) {
                 JSONArray json = venuesJson.getJSONObject("response")
                         .getJSONArray("venues");
                 for (int i = 0; i < json.length(); i++) {
@@ -98,24 +83,26 @@ public class FoursquareTrendingVenuesNearbyRequest extends
                     venues.add(venue);
                 }
             } else {
-                if (mListener != null)
-                    mListener.onError(venuesJson.getJSONObject("meta")
-                            .getString("errorDetail"));
+                foursquareError = gson.fromJson(venuesJson.getJSONObject("meta")
+                        .toString(), FoursquareError.class);
             }
 
         } catch (Exception exp) {
             exp.printStackTrace();
-            if (mListener != null)
-                mListener.onError(exp.toString());
+            foursquareError = new FoursquareError();
+            foursquareError.setErrorDetail(exp.getMessage());
         }
         return venues;
     }
 
     @Override
     protected void onPostExecute(ArrayList<Venue> venues) {
-        mProgress.dismiss();
         if (mListener != null)
-            mListener.onTrendedVenuesFetched(venues);
+            if (foursquareError == null) {
+                mListener.onSuccess(venues);
+            } else {
+                mListener.onError(foursquareError);
+            }
         super.onPostExecute(venues);
     }
 

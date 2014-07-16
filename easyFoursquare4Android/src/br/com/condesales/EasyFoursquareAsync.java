@@ -4,21 +4,19 @@ package br.com.condesales;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+
 import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
 import br.com.condesales.criterias.VenuesCriteria;
-import br.com.condesales.listeners.AccessTokenRequestListener;
-import br.com.condesales.listeners.FoursquareTrendingVenuesRequestListener;
-import br.com.condesales.listeners.FoursquareVenueDetailsRequestListener;
-import br.com.condesales.listeners.FoursquareVenuesRequestListener;
-import br.com.condesales.listeners.FriendsListener;
-import br.com.condesales.listeners.GetCheckInsListener;
 import br.com.condesales.listeners.RequestListener;
-import br.com.condesales.listeners.TipsRequestListener;
-import br.com.condesales.listeners.UserInfoRequestListener;
-import br.com.condesales.listeners.VenuesHistoryListener;
+import br.com.condesales.models.Checkin;
+import br.com.condesales.models.Tip;
+import br.com.condesales.models.User;
+import br.com.condesales.models.Venue;
+import br.com.condesales.models.Venues;
 import br.com.condesales.tasks.checkins.CheckInRequest;
 import br.com.condesales.tasks.tips.TipsNearbyRequest;
 import br.com.condesales.tasks.users.GetCheckInsRequest;
@@ -38,7 +36,6 @@ import br.com.condesales.tasks.venues.FoursquareVenuesNearbyRequest;
 public class EasyFoursquareAsync {
 
     private Activity mActivity;
-    private FoursquareDialog mDialog;
     private String mAccessToken = "";
 
     public EasyFoursquareAsync(Activity activity) {
@@ -48,11 +45,11 @@ public class EasyFoursquareAsync {
     /**
      * Requests the access to API
      */
-    public void requestAccess(AccessTokenRequestListener listener) {
+    public void requestAccess(RequestListener<String> listener) {
         if (!hasAccessToken()) {
             loginDialog(listener);
         } else {
-            listener.onAccessGrant(getAccessToken());
+            listener.onSuccess(getAccessToken());
         }
     }
 
@@ -62,8 +59,8 @@ public class EasyFoursquareAsync {
      * @param listener As the request is asynchronous, listener used to retrieve the
      *                 User object, containing the information.
      */
-    public void getUserInfo(UserInfoRequestListener listener) {
-        SelfInfoRequest request = new SelfInfoRequest(mActivity, listener);
+    public void getUserInfo(RequestListener<User> listener) {
+        SelfInfoRequest request = new SelfInfoRequest(listener);
         request.execute(getAccessToken());
     }
 
@@ -74,10 +71,8 @@ public class EasyFoursquareAsync {
      * @param listener As the request is asynchronous, listener used to retrieve the
      *                 User object, containing the information.
      */
-    public void getVenuesNearby(FoursquareVenuesRequestListener listener,
-                                VenuesCriteria criteria) {
-        FoursquareVenuesNearbyRequest request = new FoursquareVenuesNearbyRequest(
-                mActivity, listener, criteria);
+    public void getVenuesNearby(VenuesCriteria criteria, RequestListener<ArrayList<Venue>> listener) {
+        FoursquareVenuesNearbyRequest request = new FoursquareVenuesNearbyRequest(criteria, listener);
         request.execute(getAccessToken());
     }
 
@@ -88,10 +83,8 @@ public class EasyFoursquareAsync {
      * @param listener As the request is asynchronous, listener used to retrieve the
      *                 User object, containing the information.
      */
-    public void getTipsNearby(TipsRequestListener listener,
-                              TipsCriteria criteria) {
-        TipsNearbyRequest request = new TipsNearbyRequest(
-                mActivity, listener, criteria);
+    public void getTipsNearby(TipsCriteria criteria, RequestListener<ArrayList<Tip>> listener) {
+        TipsNearbyRequest request = new TipsNearbyRequest(criteria, listener);
         request.execute(getAccessToken());
     }
 
@@ -102,14 +95,14 @@ public class EasyFoursquareAsync {
      *                 User object, containing the information.
      * @param criteria The criteria to your search request
      */
-    public void getTrendingVenuesNearby(FoursquareTrendingVenuesRequestListener listener, TrendingVenuesCriteria criteria) {
-        FoursquareTrendingVenuesNearbyRequest request = new FoursquareTrendingVenuesNearbyRequest(mActivity, listener, criteria);
+    public void getTrendingVenuesNearby(TrendingVenuesCriteria criteria, RequestListener<ArrayList<Venue>> listener) {
+        FoursquareTrendingVenuesNearbyRequest request = new FoursquareTrendingVenuesNearbyRequest(criteria, listener);
         request.execute(getAccessToken());
 
     }
 
-    public void getVenueDetail(String venueID, FoursquareVenueDetailsRequestListener listener) {
-        FoursquareVenueDetailsRequest request = new FoursquareVenueDetailsRequest(mActivity, listener, venueID);
+    public void getVenueDetail(String venueID, RequestListener<Venue> listener) {
+        FoursquareVenueDetailsRequest request = new FoursquareVenueDetailsRequest(listener, venueID);
         request.execute(getAccessToken());
     }
 
@@ -120,43 +113,38 @@ public class EasyFoursquareAsync {
      *                 User object, containing the information about the check in.
      * @param criteria The criteria to your search request
      */
-    public void checkIn(RequestListener listener, CheckInCriteria criteria) {
-        CheckInRequest request = new CheckInRequest(listener,
-                criteria);
+    public void checkIn(CheckInCriteria criteria, RequestListener<Checkin> listener) {
+        CheckInRequest request = new CheckInRequest(criteria, listener);
         request.execute(getAccessToken());
     }
 
-    public void getCheckIns(GetCheckInsListener listener) {
-        GetCheckInsRequest request = new GetCheckInsRequest(mActivity, listener);
+    public void getCheckIns(RequestListener<ArrayList<Checkin>> listener) {
+        GetCheckInsRequest request = new GetCheckInsRequest(listener);
         request.execute(getAccessToken());
     }
 
-    public void getCheckIns(GetCheckInsListener listener, String userID) {
-        GetCheckInsRequest request = new GetCheckInsRequest(mActivity,
-                listener, userID);
+    public void getCheckIns(String userID, RequestListener<ArrayList<Checkin>> listener) {
+        GetCheckInsRequest request = new GetCheckInsRequest(userID, listener);
         request.execute(getAccessToken());
     }
 
-    public void getFriends(FriendsListener listener) {
-        GetFriendsRequest request = new GetFriendsRequest(mActivity, listener);
+    public void getFriends(RequestListener<ArrayList<User>> listener) {
+        GetFriendsRequest request = new GetFriendsRequest(listener);
         request.execute(mAccessToken);
     }
 
-    public void getFriends(FriendsListener listener, String userID) {
-        GetFriendsRequest request = new GetFriendsRequest(mActivity, listener,
-                userID);
+    public void getFriends(String userID, RequestListener<ArrayList<User>> listener) {
+        GetFriendsRequest request = new GetFriendsRequest(userID, listener);
         request.execute(getAccessToken());
     }
 
-    public void getVenuesHistory(VenuesHistoryListener listener) {
-        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest(
-                mActivity, listener);
+    public void getVenuesHistory(RequestListener<ArrayList<Venues>> listener) {
+        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest(listener);
         request.execute(getAccessToken());
     }
 
-    public void getVenuesHistory(VenuesHistoryListener listener, String userID) {
-        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest(
-                mActivity, listener, userID);
+    public void getVenuesHistory(String userID, RequestListener<ArrayList<Venues>> listener) {
+        GetUserVenuesHistoryRequest request = new GetUserVenuesHistoryRequest(userID, listener);
         request.execute(getAccessToken());
     }
 
@@ -178,13 +166,13 @@ public class EasyFoursquareAsync {
     /**
      * Requests the Foursquare login though a dialog.
      */
-    private void loginDialog(AccessTokenRequestListener listener) {
+    private void loginDialog(RequestListener<String> listener) {
         String url = "https://foursquare.com/oauth2/authenticate"
                 + "?client_id=" + FoursquareConstants.CLIENT_ID
                 + "&response_type=code" + "&redirect_uri="
                 + FoursquareConstants.CALLBACK_URL;
 
-        mDialog = new FoursquareDialog(mActivity, url, listener);
+        FoursquareDialog mDialog = new FoursquareDialog(mActivity, url, listener);
         mDialog.show();
     }
 
