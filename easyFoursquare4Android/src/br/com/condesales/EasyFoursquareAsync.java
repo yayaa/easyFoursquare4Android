@@ -160,6 +160,11 @@ public class EasyFoursquareAsync {
         request.execute(getAccessToken());
     }
 
+    public void getVenuePhotos(String venueID, VenuePhotosListener listener) {
+        GetVenuePhotosRequest request = new GetVenuePhotosRequest(mActivity, listener, venueID);
+        request.execute(getAccessToken());
+    }
+
     private boolean hasAccessToken() {
         String token = getAccessToken();
         return !token.equals("");
