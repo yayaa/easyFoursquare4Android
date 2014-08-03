@@ -244,6 +244,20 @@ public class EasyFoursquare {
         return users;
     }
 
+    public PhotosGroup getVenuePhotos(String venueID) {
+        GetVenuePhotosRequest request = new GetVenuePhotosRequest(mActivity, venueID);
+        request.execute(getAccessToken());
+        PhotosGroup photosGroup = null;
+        try {
+            photosGroup = request.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return photosGroup;
+    }
+
     private boolean hasAccessToken() {
         String token = getAccessToken();
         return !token.equals("");
