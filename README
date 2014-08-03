@@ -20,7 +20,7 @@ checkIn
 getCheckIns //any user
 getFriends //any user
 getVenuesHistory //any user
-
+getVenuePhotos
 
 
 Next version:
