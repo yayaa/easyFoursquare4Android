@@ -65,14 +65,15 @@ public class MainActivity extends Activity implements
     private void checkin() {
 
         CheckInCriteria criteria = new CheckInCriteria();
-        criteria.setBroadcast(CheckInCriteria.BroadCastType.PUBLIC);
+        //setting to private, so you can test as many times as you want
+        criteria.setBroadcast(CheckInCriteria.BroadCastType.PRIVATE);
         criteria.setVenueId("4c7063da9c6d6dcb9798d27a");
 
         async.checkIn(criteria, new RequestListener<Checkin>() {
 
             @Override
             public void onSuccess(Checkin response) {
-                Toast.makeText(MainActivity.this, response.getId(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, response.getVenue().getName(), Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -90,8 +91,7 @@ public class MainActivity extends Activity implements
             public void onSuccess(User user) {
                 userName.setText(user.getFirstName() + " " + user.getLastName());
                 viewSwitcher.showNext();
-                Toast.makeText(MainActivity.this, "Got it!", Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText(MainActivity.this, "Got it!", Toast.LENGTH_LONG).show();
                 fetchUserImage(user);
             }
 
@@ -133,7 +133,7 @@ public class MainActivity extends Activity implements
 
         //for another examples uncomment lines below:
         //requestTipsNearby();
-        //checkin();
+        checkin();
     }
 
     @Override
