@@ -57,6 +57,17 @@ public class EasyFoursquareAsync {
     }
 
     /**
+     * Revokes the access to API
+     */
+    public void revokeAccess() {
+        SharedPreferences sharedPreferences = mActivity.getSharedPreferences(FoursquareConstants.SHARED_PREF_FILE, 0);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(FoursquareConstants.ACCESS_TOKEN);
+        editor.commit();
+    }
+
+    /**
      * Requests logged user information asynchronously.
      *
      * @param listener As the request is asynchronous, listener used to retrieve the
