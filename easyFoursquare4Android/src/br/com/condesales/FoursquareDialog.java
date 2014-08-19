@@ -98,7 +98,7 @@ public class FoursquareDialog extends Dialog {
 		mTitle.setText("Foursquare");
 		mTitle.setTextColor(Color.WHITE);
 		mTitle.setTypeface(Typeface.DEFAULT_BOLD);
-		mTitle.setBackgroundColor(0xFF0cbadf);
+		mTitle.setBackgroundColor(Color.parseColor("#0732A2"));
 		mTitle.setPadding(MARGIN + PADDING, MARGIN, MARGIN, MARGIN);
 		mTitle.setCompoundDrawablePadding(MARGIN + PADDING);
 		mTitle.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
