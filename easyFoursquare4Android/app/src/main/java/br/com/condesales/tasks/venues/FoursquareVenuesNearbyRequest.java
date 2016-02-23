@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 
-import br.com.condesales.constants.FoursquareConstants;
+import br.com.condesales.FoursquareConfig;
 import br.com.condesales.criterias.VenuesCriteria;
 import br.com.condesales.listeners.FoursquareVenuesRequestListener;
 import br.com.condesales.models.Venue;
@@ -66,7 +66,7 @@ public class FoursquareVenuesNearbyRequest extends
         try {
 
             //date required
-            String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
+            String apiDateVersion = FoursquareConfig.API_DATE_VERSION;
             // Call Foursquare to get the Venues around
             String uri = "https://api.foursquare.com/v2/venues/search"
                     + "?v="
@@ -88,7 +88,7 @@ public class FoursquareVenuesNearbyRequest extends
             if (!access_token.equals("")) {
                 uri = uri + "&oauth_token=" + access_token;
             } else {
-                uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
+                uri = uri + "&client_id=" + FoursquareConfig.getClientId() + "&client_secret=" + FoursquareConfig.getClientSecret();
             }
 
             JSONObject venuesJson = executeHttpGet(uri);

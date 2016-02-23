@@ -14,7 +14,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import br.com.condesales.constants.FoursquareConstants;
+import br.com.condesales.FoursquareConfig;
 import br.com.condesales.listeners.VenuePhotosListener;
 import br.com.condesales.models.PhotoItem;
 import br.com.condesales.models.PhotosGroup;
@@ -45,7 +45,7 @@ public class GetVenuePhotosRequest extends AsyncTask<String, Integer, PhotosGrou
         try {
 
             //date required
-            String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
+            String apiDateVersion = FoursquareConfig.API_DATE_VERSION;
             // Call Foursquare to get the Venues around
             String uri = "https://api.foursquare.com/v2/venues/" + mVenueID
                     + "/photos?v="
@@ -53,7 +53,7 @@ public class GetVenuePhotosRequest extends AsyncTask<String, Integer, PhotosGrou
             if (!access_token.equals("")) {
                 uri = uri + "&oauth_token=" + access_token;
             } else {
-                uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
+                uri = uri + "&client_id=" + FoursquareConfig.getClientId() + "&client_secret=" + FoursquareConfig.getClientSecret();
             }
 
             JSONObject photosJson = executeHttpGet(uri);

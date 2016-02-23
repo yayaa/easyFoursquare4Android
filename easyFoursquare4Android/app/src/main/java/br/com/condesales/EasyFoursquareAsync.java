@@ -4,7 +4,6 @@ package br.com.condesales;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
@@ -62,10 +61,10 @@ public class EasyFoursquareAsync {
      * Revokes the access to API
      */
     public void revokeAccess() {
-        SharedPreferences sharedPreferences = mActivity.getSharedPreferences(FoursquareConstants.SHARED_PREF_FILE, 0);
+        SharedPreferences sharedPreferences = mActivity.getSharedPreferences(FoursquareConfig.SHARED_PREF_FILE, 0);
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(FoursquareConstants.ACCESS_TOKEN);
+        editor.remove(FoursquareConfig.ACCESS_TOKEN);
         editor.commit();
     }
 
@@ -186,8 +185,8 @@ public class EasyFoursquareAsync {
     private String getAccessToken() {
         if (mAccessToken.equals("")) {
             SharedPreferences settings = mActivity.getSharedPreferences(
-                    FoursquareConstants.SHARED_PREF_FILE, 0);
-            mAccessToken = settings.getString(FoursquareConstants.ACCESS_TOKEN,
+                    FoursquareConfig.SHARED_PREF_FILE, 0);
+            mAccessToken = settings.getString(FoursquareConfig.ACCESS_TOKEN,
                     "");
         }
         return mAccessToken;
@@ -198,9 +197,9 @@ public class EasyFoursquareAsync {
      */
     private void loginDialog(AccessTokenRequestListener listener) {
         String url = "https://foursquare.com/oauth2/authenticate"
-                + "?client_id=" + FoursquareConstants.CLIENT_ID
+                + "?client_id=" + FoursquareConfig.getClientId()
                 + "&response_type=code" + "&redirect_uri="
-                + FoursquareConstants.CALLBACK_URL;
+                + FoursquareConfig.getCallbackUrl();
 
         mDialog = new FoursquareDialog(mActivity, url, listener);
         mDialog.show();

@@ -19,7 +19,6 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.listeners.AccessTokenRequestListener;
 import br.com.condesales.tasks.AccessTokenRequest;
 
@@ -125,7 +124,7 @@ public class FoursquareDialog extends Dialog {
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			Log.d(TAG, "Redirecting URL " + url);
 
-			if (url.startsWith(FoursquareConstants.CALLBACK_URL)) {
+			if (url.startsWith(FoursquareConfig.getCallbackUrl())) {
 				String urls[] = url.split("=");
 				AccessTokenRequest request = new AccessTokenRequest(mActivity, mListener);
 				request.execute(urls[1]);

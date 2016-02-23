@@ -12,6 +12,7 @@ import android.widget.ViewSwitcher;
 import java.util.ArrayList;
 
 import br.com.condesales.EasyFoursquareAsync;
+import br.com.condesales.FoursquareConfig;
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
@@ -32,10 +33,19 @@ public class MainActivity extends Activity implements
     private ViewSwitcher viewSwitcher;
     private TextView userName;
 
+    private final String CLIENT_ID = "QWAKGDMDTKSCNFFDQXWDWBSMLYGBVER3C0YZP0JZLPGR5F40";
+    private final String CLIENT_SECRET = "EOUK1SBXNBWLAWADF0VJOUQO52XGIJS51TOGD1LCQWFIGQMX";
+    private final String CALLBACK_URL = "http://localhost:8888";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // TODO: You MUST specify clientId, clientSecret and callbackUrl
+        FoursquareConfig.setClient(CLIENT_ID, CLIENT_SECRET);
+        FoursquareConfig.setCallbackUrl(CALLBACK_URL);
+
         userImage = (ImageView) findViewById(R.id.imageView1);
         viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher1);
         userName = (TextView) findViewById(R.id.textView1);

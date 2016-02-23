@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
-import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.criterias.TrendingVenuesCriteria;
@@ -274,8 +273,8 @@ public class EasyFoursquare {
     private String getAccessToken() {
         if (mAccessToken.equals("")) {
             SharedPreferences settings = mActivity.getSharedPreferences(
-                    FoursquareConstants.SHARED_PREF_FILE, 0);
-            mAccessToken = settings.getString(FoursquareConstants.ACCESS_TOKEN,
+                    FoursquareConfig.SHARED_PREF_FILE, 0);
+            mAccessToken = settings.getString(FoursquareConfig.ACCESS_TOKEN,
                     "");
         }
         return mAccessToken;
@@ -286,9 +285,9 @@ public class EasyFoursquare {
      */
     private void loginDialog(AccessTokenRequestListener listener) {
         String url = "https://foursquare.com/oauth2/authenticate"
-                + "?client_id=" + FoursquareConstants.CLIENT_ID
+                + "?client_id=" + FoursquareConfig.getClientId()
                 + "&response_type=code" + "&redirect_uri="
-                + FoursquareConstants.CALLBACK_URL;
+                + FoursquareConfig.getCallbackUrl();
 
         mDialog = new FoursquareDialog(mActivity, url, listener);
         mDialog.show();

@@ -17,7 +17,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import br.com.condesales.constants.FoursquareConstants;
+import br.com.condesales.FoursquareConfig;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.listeners.TipsRequestListener;
 import br.com.condesales.models.Tip;
@@ -61,7 +61,7 @@ public class TipsNearbyRequest extends
 
             //date required
 
-            String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
+            String apiDateVersion = FoursquareConfig.API_DATE_VERSION;
             // Call Foursquare to get the Tips around
             String uri = "https://api.foursquare.com/v2/tips/search"
                     + "?v="
@@ -79,7 +79,7 @@ public class TipsNearbyRequest extends
             if (!access_token.equals("")) {
                 uri = uri + "&oauth_token=" + access_token;
             } else {
-                uri = uri + "&client_id=" + FoursquareConstants.CLIENT_ID + "&client_secret=" + FoursquareConstants.CLIENT_SECRET;
+                uri = uri + "&client_id=" + FoursquareConfig.getClientId() + "&client_secret=" + FoursquareConfig.getClientSecret();
             }
             
             JSONObject tipsJson = executeHttpGet(uri);

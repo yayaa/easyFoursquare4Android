@@ -18,7 +18,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.location.Location;
 import android.os.AsyncTask;
-import br.com.condesales.constants.FoursquareConstants;
+
+import br.com.condesales.FoursquareConfig;
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.listeners.CheckInListener;
 import br.com.condesales.models.Checkin;
@@ -130,7 +131,7 @@ public class CheckInRequest extends AsyncTask<String, Integer, Checkin> {
 		HttpClient client = new DefaultHttpClient();
 		
 		//date required
-		String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
+		String apiDateVersion = FoursquareConfig.API_DATE_VERSION;
 		// create the params lists, an add some info on it..
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("v", apiDateVersion));

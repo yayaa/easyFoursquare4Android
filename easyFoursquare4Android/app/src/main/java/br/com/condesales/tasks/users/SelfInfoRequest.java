@@ -18,7 +18,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import br.com.condesales.constants.FoursquareConstants;
+import br.com.condesales.FoursquareConfig;
 import br.com.condesales.listeners.UserInfoRequestListener;
 import br.com.condesales.models.User;
 
@@ -57,7 +57,7 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
         if (token != null && retrieveUserInfo().equals("")) {
             try {
                 //date required
-                String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
+                String apiDateVersion = FoursquareConfig.API_DATE_VERSION;
                 // Get userdata of myself
                 JSONObject jsonResponse = executeHttpGet("https://api.foursquare.com/v2/"
                         + "users/self"
@@ -132,17 +132,17 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
 
     private void saveUserInfo(String userJson) {
         SharedPreferences settings = mActivity.getSharedPreferences(
-                FoursquareConstants.SHARED_PREF_FILE, 0);
+                FoursquareConfig.SHARED_PREF_FILE, 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(FoursquareConstants.USER_INFO, userJson);
+        editor.putString(FoursquareConfig.USER_INFO, userJson);
         // Commit the edits!
         editor.commit();
     }
 
     private String retrieveUserInfo() {
         SharedPreferences settings = mActivity.getSharedPreferences(
-                FoursquareConstants.SHARED_PREF_FILE, 0);
-        return settings.getString(FoursquareConstants.USER_INFO, "");
+                FoursquareConfig.SHARED_PREF_FILE, 0);
+        return settings.getString(FoursquareConfig.USER_INFO, "");
     }
 
 }

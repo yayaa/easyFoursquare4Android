@@ -14,7 +14,8 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import br.com.condesales.constants.FoursquareConstants;
+
+import br.com.condesales.FoursquareConfig;
 import br.com.condesales.listeners.VenuesHistoryListener;
 import br.com.condesales.models.Venues;
 
@@ -98,7 +99,7 @@ public class GetUserVenuesHistoryRequest extends
 		ArrayList<Venues> list = new ArrayList<Venues>();
 		try {
 			// date required
-			String apiDateVersion = FoursquareConstants.API_DATE_VERSION;
+			String apiDateVersion = FoursquareConfig.API_DATE_VERSION;
 			// Call Foursquare to post checkin
 			JSONObject venuesJson = executeHttpGet("https://api.foursquare.com/v2/users/"
 					+ mUserID
