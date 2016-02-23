@@ -1,7 +1,5 @@
 package br.com.condesales.tasks.venues;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
@@ -10,7 +8,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -21,7 +18,6 @@ import br.com.condesales.constants.FoursquareConstants;
 import br.com.condesales.listeners.VenuePhotosListener;
 import br.com.condesales.models.PhotoItem;
 import br.com.condesales.models.PhotosGroup;
-import br.com.condesales.models.Venue;
 
 /**
  * Created by dionysis_lorentzos on 2/8/14.
@@ -34,11 +30,10 @@ public class GetVenuePhotosRequest extends AsyncTask<String, Integer, PhotosGrou
     private VenuePhotosListener mListener;
     private String mVenueID;
 
-    public GetVenuePhotosRequest(Activity activity, VenuePhotosListener listener, String venueID) {
+    public GetVenuePhotosRequest(VenuePhotosListener listener, String venueID) {
         mListener = listener;
         mVenueID = venueID;
     }
-
 
     @Override
     protected PhotosGroup doInBackground(String... params) {
@@ -92,7 +87,6 @@ public class GetVenuePhotosRequest extends AsyncTask<String, Integer, PhotosGrou
             mListener.onGotVenuePhotos(photosGroup);
         super.onPostExecute(photosGroup);
     }
-
 
     // Calls a URI and returns the answer as a JSON object
     private JSONObject executeHttpGet(String uri) throws Exception {

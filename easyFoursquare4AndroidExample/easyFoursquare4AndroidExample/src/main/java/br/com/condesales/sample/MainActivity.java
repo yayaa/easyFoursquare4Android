@@ -1,4 +1,4 @@
-package br.com.condesales;
+package br.com.condesales.sample;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -11,6 +11,7 @@ import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
 
+import br.com.condesales.EasyFoursquareAsync;
 import br.com.condesales.criterias.CheckInCriteria;
 import br.com.condesales.criterias.TipsCriteria;
 import br.com.condesales.listeners.AccessTokenRequestListener;
