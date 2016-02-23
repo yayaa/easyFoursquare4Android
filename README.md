@@ -23,4 +23,13 @@ dependencies {
 }
 ```
 
+# Important
+
+Don't forget to set your clientId & clientSecret & callbackURL as below:
+
+```java
+FoursquareConfig.setClient(CLIENT_ID, CLIENT_SECRET);
+FoursquareConfig.setCallbackUrl(CALLBACK_URL);
+```
+
 [1]: https://github.com/yayaa/easyFoursquare4Android/blob/master/aar/easyFoursquare4Android_v1.1.0.aar
