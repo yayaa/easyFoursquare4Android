@@ -44,10 +44,12 @@ public class TipsNearbyRequest extends
 
     @Override
     protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting tips nearby ...");
-        mProgress.show();
+        if (FoursquareConfig.shouldDisplayProgress()) {
+            mProgress = new ProgressDialog(mActivity);
+            mProgress.setCancelable(false);
+            mProgress.setMessage("Getting tips nearby ...");
+            mProgress.show();
+        }
         super.onPreExecute();
     }
 
@@ -113,7 +115,10 @@ public class TipsNearbyRequest extends
 
     @Override
     protected void onPostExecute(ArrayList<Tip> tips) {
-        mProgress.dismiss();
+        if (mProgress != null && mProgress.isShowing()) {
+            mProgress.dismiss();
+        }
+
         if (mListener != null)
             mListener.onTipsFetched(tips);
         super.onPostExecute(tips);

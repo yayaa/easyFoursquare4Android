@@ -7,6 +7,8 @@ import android.text.TextUtils;
  */
 public class FoursquareConfig {
 
+    private static boolean displayProgress = true;
+
     private static String CLIENT_ID;
     private static String CLIENT_SECRET;
 
@@ -27,6 +29,10 @@ public class FoursquareConfig {
         FoursquareConfig.CALLBACK_URL = callbackUrl;
     }
 
+    public static void setDisplayProgress(boolean shouldDisplay) {
+        FoursquareConfig.displayProgress = shouldDisplay;
+    }
+
     public static String getClientId() {
         if (TextUtils.isEmpty(FoursquareConfig.CLIENT_ID)) {
             throw new RuntimeException("Use FoursquareConfig class to set your ClientId first.");
@@ -45,6 +51,10 @@ public class FoursquareConfig {
 
     public static String getCallbackUrl() {
         return FoursquareConfig.CALLBACK_URL;
+    }
+
+    public static boolean shouldDisplayProgress() {
+        return displayProgress;
     }
 
 }

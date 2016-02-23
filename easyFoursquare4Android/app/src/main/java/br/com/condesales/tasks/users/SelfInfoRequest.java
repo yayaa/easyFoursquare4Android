@@ -40,10 +40,12 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
 
     @Override
     protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting user info ...");
-        mProgress.show();
+        if (FoursquareConfig.shouldDisplayProgress()) {
+            mProgress = new ProgressDialog(mActivity);
+            mProgress.setCancelable(false);
+            mProgress.setMessage("Getting user info ...");
+            mProgress.show();
+        }
         super.onPreExecute();
     }
 
@@ -96,7 +98,10 @@ public class SelfInfoRequest extends AsyncTask<String, Integer, User> {
 
     @Override
     protected void onPostExecute(User result) {
-        mProgress.dismiss();
+        if (mProgress != null && mProgress.isShowing()) {
+            mProgress.dismiss();
+        }
+
         if (mListener != null) {
             if (error != null) {
                 mListener.onError(error.getMessage());

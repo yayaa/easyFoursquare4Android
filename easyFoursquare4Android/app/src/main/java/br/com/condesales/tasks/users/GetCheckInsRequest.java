@@ -85,10 +85,12 @@ public class GetCheckInsRequest extends
 
 	@Override
 	protected void onPreExecute() {
-		mProgress = new ProgressDialog(mActivity);
-		mProgress.setCancelable(false);
-		mProgress.setMessage("Getting Checkins ...");
-		mProgress.show();
+		if (FoursquareConfig.shouldDisplayProgress()) {
+			mProgress = new ProgressDialog(mActivity);
+			mProgress.setCancelable(false);
+			mProgress.setMessage("Getting Checkins ...");
+			mProgress.show();
+		}
 		super.onPreExecute();
 	}
 
@@ -139,7 +141,10 @@ public class GetCheckInsRequest extends
 
 	@Override
 	protected void onPostExecute(ArrayList<Checkin> checkinsList) {
-		mProgress.dismiss();
+		if (mProgress != null && mProgress.isShowing()) {
+			mProgress.dismiss();
+		}
+
 		if (mListener != null)
 			mListener.onGotCheckIns(checkinsList);
 		super.onPostExecute(checkinsList);

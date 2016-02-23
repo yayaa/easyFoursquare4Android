@@ -41,10 +41,12 @@ public class FoursquareVenueDetailsRequest extends
 
     @Override
     protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting venue details ...");
-        mProgress.show();
+        if (FoursquareConfig.shouldDisplayProgress()) {
+            mProgress = new ProgressDialog(mActivity);
+            mProgress.setCancelable(false);
+            mProgress.setMessage("Getting venue details ...");
+            mProgress.show();
+        }
         super.onPreExecute();
     }
 
@@ -95,7 +97,10 @@ public class FoursquareVenueDetailsRequest extends
 
     @Override
     protected void onPostExecute(Venue venues) {
-        mProgress.dismiss();
+        if (mProgress != null && mProgress.isShowing()) {
+            mProgress.dismiss();
+        }
+
         if (mListener != null)
             mListener.onVenueDetailFetched(venues);
         super.onPostExecute(venues);

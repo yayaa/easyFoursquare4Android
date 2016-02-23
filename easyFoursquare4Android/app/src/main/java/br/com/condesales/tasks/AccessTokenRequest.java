@@ -32,10 +32,12 @@ public class AccessTokenRequest extends AsyncTask<String, Integer, String> {
 
     @Override
     protected void onPreExecute() {
-        mProgress = new ProgressDialog(mActivity);
-        mProgress.setCancelable(false);
-        mProgress.setMessage("Getting access token ...");
-        mProgress.show();
+        if (FoursquareConfig.shouldDisplayProgress()) {
+            mProgress = new ProgressDialog(mActivity);
+            mProgress.setCancelable(false);
+            mProgress.setMessage("Getting access token ...");
+            mProgress.show();
+        }
         super.onPreExecute();
     }
 
@@ -83,7 +85,10 @@ public class AccessTokenRequest extends AsyncTask<String, Integer, String> {
 
     @Override
     protected void onPostExecute(String access_token) {
-        mProgress.dismiss();
+        if (mProgress != null && mProgress.isShowing()) {
+            mProgress.dismiss();
+        }
+
         mListener.onAccessGrant(access_token);
         super.onPostExecute(access_token);
     }

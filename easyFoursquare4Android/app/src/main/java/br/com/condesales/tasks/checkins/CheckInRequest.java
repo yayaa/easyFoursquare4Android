@@ -64,10 +64,12 @@ public class CheckInRequest extends AsyncTask<String, Integer, Checkin> {
 
 	@Override
 	protected void onPreExecute() {
-		mProgress = new ProgressDialog(mActivity);
-		mProgress.setCancelable(false);
-		mProgress.setMessage("Checking in ...");
-		mProgress.show();
+		if (FoursquareConfig.shouldDisplayProgress()) {
+			mProgress = new ProgressDialog(mActivity);
+			mProgress.setCancelable(false);
+			mProgress.setMessage("Checking in ...");
+			mProgress.show();
+		}
 		super.onPreExecute();
 	}
 
@@ -106,7 +108,10 @@ public class CheckInRequest extends AsyncTask<String, Integer, Checkin> {
 
 	@Override
 	protected void onPostExecute(Checkin checkin) {
-		mProgress.dismiss();
+		if (mProgress != null && mProgress.isShowing()) {
+			mProgress.dismiss();
+		}
+
 		if (mListener != null)
 			mListener.onCheckInDone(checkin);
 		super.onPostExecute(checkin);

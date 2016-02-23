@@ -84,10 +84,12 @@ public class GetFriendsRequest extends
 
 	@Override
 	protected void onPreExecute() {
-		mProgress = new ProgressDialog(mActivity);
-		mProgress.setCancelable(false);
-		mProgress.setMessage("Getting Friends ...");
-		mProgress.show();
+		if (FoursquareConfig.shouldDisplayProgress()) {
+			mProgress = new ProgressDialog(mActivity);
+			mProgress.setCancelable(false);
+			mProgress.setMessage("Getting Friends ...");
+			mProgress.show();
+		}
 		super.onPreExecute();
 	}
 
@@ -139,7 +141,10 @@ public class GetFriendsRequest extends
 
 	@Override
 	protected void onPostExecute(ArrayList<User> friendsList) {
-		mProgress.dismiss();
+		if (mProgress != null && mProgress.isShowing()) {
+			mProgress.dismiss();
+		}
+
 		if (mListener != null)
 			mListener.onGotFriends(friendsList);
 		super.onPostExecute(friendsList);

@@ -84,10 +84,12 @@ public class GetUserVenuesHistoryRequest extends
 
 	@Override
 	protected void onPreExecute() {
-		mProgress = new ProgressDialog(mActivity);
-		mProgress.setCancelable(false);
-		mProgress.setMessage("Getting Venues History ...");
-		mProgress.show();
+		if (FoursquareConfig.shouldDisplayProgress()) {
+			mProgress = new ProgressDialog(mActivity);
+			mProgress.setCancelable(false);
+			mProgress.setMessage("Getting Venues History ...");
+			mProgress.show();
+		}
 		super.onPreExecute();
 	}
 
@@ -138,7 +140,10 @@ public class GetUserVenuesHistoryRequest extends
 
 	@Override
 	protected void onPostExecute(ArrayList<Venues> friendsList) {
-		mProgress.dismiss();
+		if (mProgress != null && mProgress.isShowing()) {
+			mProgress.dismiss();
+		}
+
 		if (mListener != null)
 			mListener.onGotVenuesHistory(friendsList);
 		super.onPostExecute(friendsList);
