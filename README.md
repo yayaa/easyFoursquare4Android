@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
-	compile(name: 'easyFoursquare4Android_v1.2.0', ext: 'aar')	
+	compile(name: 'easyFoursquare4Android_v1.2.1', ext: 'aar')	
 }
 ```
 
