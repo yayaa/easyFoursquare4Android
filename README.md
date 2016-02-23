@@ -1,4 +1,4 @@
-Android ViewPagerIndicator
+easyFoursquare4Android
 ==========================
 
 Since the original library has not changed at all by 2 years, i decided to convert it into AndroidStudio Project in order to make it easier to include in applications.
