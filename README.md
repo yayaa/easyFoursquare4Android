@@ -32,4 +32,4 @@ FoursquareConfig.setClient(CLIENT_ID, CLIENT_SECRET);
 FoursquareConfig.setCallbackUrl(CALLBACK_URL);
 ```
 
-[1]: https://github.com/yayaa/easyFoursquare4Android/blob/master/aar/easyFoursquare4Android_v1.2.0.aar
+[1]: https://github.com/yayaa/easyFoursquare4Android/blob/master/aar/
