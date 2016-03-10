@@ -32,4 +32,12 @@ FoursquareConfig.setClient(CLIENT_ID, CLIENT_SECRET);
 FoursquareConfig.setCallbackUrl(CALLBACK_URL);
 ```
 
+# Proguard
+
+```
+# Because it uses gson, we need to keep models
+-keep class br.com.condesales.models.** { *; }
+-dontwarn fi.foyt.foursquare.**
+```
+
 [1]: https://github.com/yayaa/easyFoursquare4Android/blob/master/aar/
