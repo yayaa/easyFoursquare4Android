@@ -1,5 +1,6 @@
 easyFoursquare4Android
 ==========================
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
 Since the original library has not changed at all by 2 years, i decided to convert it into AndroidStudio Project in order to make it easier to include in applications.
 
